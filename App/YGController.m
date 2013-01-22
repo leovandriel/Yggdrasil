@@ -263,16 +263,14 @@
         _lastTime = CFAbsoluteTimeGetCurrent() - start;
         if (!NSIsEmptyRect(_lastRect)) {
             NSRect r = NSMakeRect((_lastRect.origin.x - rect.origin.x) * drawRect.size.width / rect.size.width + drawRect.origin.x, (_lastRect.origin.y - rect.origin.y) * drawRect.size.height / rect.size.height + drawRect.origin.y, _lastRect.size.width * drawRect.size.width / rect.size.width, _lastRect.size.height * drawRect.size.height / rect.size.height);
-            if (r.size.width < 1) {
-                r.origin.x -= (1 - r.size.width) / 2;
-                r.size.width = 1;
+            if (r.size.width < 2) {
+                r.origin.x -= (2 - r.size.width) / 2;
+                r.size.width = 2;
             }
-            if (r.size.height < 1) {
-                r.origin.y -= (1 - r.size.height) / 2;
-                r.size.height = 1;
+            if (r.size.height < 2) {
+                r.origin.y -= (2 - r.size.height) / 2;
+                r.size.height = 2;
             }
-            if (r.size.width < 1) r.size.width = 1;
-            if (r.size.height < 1) r.size.height = 1;
             [[NSColor colorWithDeviceWhite:1 alpha:1] set];
             NSRectFill(r);
         }
@@ -281,7 +279,8 @@
 
 - (void)drawNode:(YGNode *)node rect:(NSRect)rect
 {
-    if (node.count == 1) {
+    if (node.count == 1 || rect.size.width * rect.size.height < 9) {
+        for (BOOL first = YES; node.count == 4; first = NO) node = node[first ? 3 : 0];
         [[self.class colorWithLabel:node[0]] set];
         NSRectFill(NSInsetRect(rect, .1, .1));
     } else if (node.count == 4) {

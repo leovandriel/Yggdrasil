@@ -20,6 +20,11 @@ Yggdrasil builds up its quadtree by sampling labels from a *labeler*. A labeler 
 The `NSPoint` parameter is contained in the rectangle returned by `- (NSRect)rect`. The callback block allows for asynchronous lookup, for example to fetch labels from a web server.
 
 
+Drawing
+-------
+When selecting a labeler, the last fully scanned quadtree is displayed. After starting a scan, progress is indicated by frequent updates and the display of a white square cursor. Zoom in by clicking one of the four quadrants, zoom out by clicking on the side. The tree is only drawn up to screen resolution, so use zooming to appreciate the details. Resize the window to have the cursor update more frequently, small is fast.
+
+
 Caching
 -------
 All sampled labels are stored in cache file to allow fast reruns of the same labeler. This cache is stored in `~/Caches/Yggdrasil` with a `.cache` extension, which is JSON data. 
