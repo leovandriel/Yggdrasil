@@ -297,7 +297,6 @@
 							<string key="NSFrame">{{120, 20}, {361, 17}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="515492120">
@@ -730,14 +729,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">_progressView</string>
-						<reference key="source" ref="192755735"/>
-						<reference key="destination" ref="491557460"/>
-					</object>
-					<int key="connectionID">623</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">_runButton</string>
 						<reference key="source" ref="192755735"/>
 						<reference key="destination" ref="903556096"/>
@@ -775,14 +766,6 @@
 						<reference key="destination" ref="491557460"/>
 					</object>
 					<int key="connectionID">628</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">_providerCombo</string>
-						<reference key="source" ref="192755735"/>
-						<reference key="destination" ref="684960139"/>
-					</object>
-					<int key="connectionID">669</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -1914,25 +1897,6 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">YGController</string>
 					<string key="superclassName">NSObject</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="run:">id</string>
-						<string key="select:">id</string>
-						<string key="step:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="run:">
-							<string key="name">run:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="select:">
-							<string key="name">select:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="step:">
-							<string key="name">step:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/YGController.h</string>
