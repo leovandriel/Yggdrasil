@@ -3,21 +3,21 @@ Yggdrasil
 
 *Objective-C quadtree implementation with OS X visualization app.*
 
-![Screenshot countries of the world](Yggdrasil/raw/master/Demo/screenshot.png)
-
 
 About
 -----
-This app turns a simple mapping into a quad tree by recursively sampling coordinates. It can be used for generating a fast lookup for country codes based on a slow lookups like polygon intersection or even web requests.
+Yggdrasil turns a simple 2D mapping into a quad tree by recursively sampling coordinates. It can be used for generating a fast lookup for country codes based on a slow lookups like polygon intersection or even web requests.
+
+![Screenshot countries of the world](Yggdrasil/raw/master/Demo/screenshot.png)
 
 
 Labeler
 -------
-Yggdrasil builds up its quadtree by sampling string labels from a *labeler*. A labeler provides a mapping from 2D coordinates to string labels. All labelers implement the `YGLabeler` protocol, which includes the method:
+Yggdrasil builds up its quadtree by sampling labels from a *labeler*. A labeler provides a mapping from 2D coordinates to string labels. All labelers implement the `YGLabeler` protocol, which includes the method:
 
     - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block;
 
-The `NSPoint` parameter is contained in the rectangle returnd by `- (NSRect)rect`. The callback block allows for asynchronous lookup, for example to fetch labels from a web server.
+The `NSPoint` parameter is contained in the rectangle returned by `- (NSRect)rect`. The callback block allows for asynchronous lookup, for example to fetch labels from a web server.
 
 
 Caching
