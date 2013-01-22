@@ -19,7 +19,7 @@
     NSArray *labelers = @[
         [[YGCircleLabeler alloc] init],
         [[YGMandelbrotLabeler alloc] init],
-        [[YGGeoJsonLabeler alloc] init],
+        [[YGGeoJsonLabeler alloc] initWithName:@"world" labelPath:@"id"],
     ];
     [controller setupWithLabelers:labelers min:4 max:8 sub:2];
 }

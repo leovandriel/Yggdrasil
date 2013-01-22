@@ -88,22 +88,24 @@
 
 @implementation YGGeoJsonLabeler {
     NSArray *_data;
+    NSString *_name;
 }
 
-- (id)initWithFile:(NSString *)file namePath:(NSString *)namePath
+- (id)initWithName:(NSString *)name url:(NSURL *)url labelPath:(NSString *)labelPath
 {
     self = [super init];
     if (self) {
-        NSData *d = [NSData dataWithContentsOfFile:file];
+        _name = name;
+        NSData *d = [NSData dataWithContentsOfURL:url];
         NSDictionary *geojson = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-        _data = [self.class flattenGeoJSON:geojson namePath:namePath];
+        _data = [self.class flattenGeoJSON:geojson labelPath:labelPath];
     }
     return self;
 }
 
-- (id)init
+- (id)initWithName:(NSString *)name labelPath:(NSString *)labelPath
 {
-    return [self initWithFile:[NSBundle.mainBundle pathForResource:@"world" ofType:@"json"] namePath:@"id"];
+    return [self initWithName:name url:[NSBundle.mainBundle URLForResource:name withExtension:@"json"] labelPath:labelPath];
 }
 
 + (NSArray *)boxWithPoly:(NSArray *)poly
@@ -120,31 +122,31 @@
     return @[@(lng_min), @(lng_max), @(lat_min), @(lat_max)];
 }
 
-+ (NSArray *)flattenGeoJSON:(NSDictionary *)json namePath:(NSString *)namePath
++ (NSArray *)flattenGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath
 {
     NSMutableArray *result = @[].mutableCopy;
     NSArray *features = json[@"features"];
-    NSArray *nameKeys = [namePath componentsSeparatedByString:@"."];
+    NSArray *labelKeys = [labelPath componentsSeparatedByString:@"."];
     for (NSDictionary *feature in features) {
-        id name = feature;
-        for (NSString *key in nameKeys) {
-            name = name[key];
+        id label = feature;
+        for (NSString *key in labelKeys) {
+            label = label[key];
         }
-        if (![name isKindOfClass:NSString.class]) {
-            NSLog(@"No string found a name path: %@", [nameKeys componentsJoinedByString:@" . "]);
+        if (![label isKindOfClass:NSString.class]) {
+            NSLog(@"No string found a label path: %@", [labelKeys componentsJoinedByString:@" . "]);
             return nil;
         }
         NSString *type = feature[@"geometry"][@"type"];
         if ([type isEqualToString:@"Polygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *poly in coordinates) {
-                [result addObject:@[[self boxWithPoly:poly], poly, name]];
+                [result addObject:@[[self boxWithPoly:poly], poly, label]];
             }
         } else if ([type isEqualToString:@"MultiPolygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *polys in coordinates) {
                 for (NSArray *poly in polys) {
-                    [result addObject:@[[self boxWithPoly:poly], poly, name]];
+                    [result addObject:@[[self boxWithPoly:poly], poly, label]];
                 }
             }
         } else {
@@ -196,7 +198,7 @@
 
 - (NSString *)name
 {
-    return @"geo-json";
+    return _name;
 }
 
 - (NSRect)rect

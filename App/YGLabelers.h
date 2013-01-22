@@ -28,4 +28,6 @@
 
 
 @interface YGGeoJsonLabeler : NSObject <YGLabeler>
+- (id)initWithName:(NSString *)name labelPath:(NSString *)labelPath;
+- (id)initWithName:(NSString *)name url:(NSURL *)url labelPath:(NSString *)labelPath;
 @end
