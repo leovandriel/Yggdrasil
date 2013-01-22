@@ -26,6 +26,7 @@
 @property (nonatomic, assign) double lastProgress;
 @property (nonatomic, strong) NSDate *lastUpdate;
 @property (nonatomic, strong) NSDate *lastDraw;
+@property (nonatomic, assign) NSTimeInterval lastEstimate;
 @end
 @implementation YGRun
 @end
@@ -176,24 +177,30 @@
         _run.progress += 1.0 / (1 << depth * 2);
         if (_run.progress < 0) _run.progress = 0;
         if (_run.progress > 1) _run.progress = 1;
-        if (!_run.lastDraw || -[_run.lastDraw timeIntervalSinceNow] > MIN(1, MAX(.2, _drawView.lastTime * 20))) {
+        if (!_run.lastDraw || -[_run.lastDraw timeIntervalSinceNow] > MIN(2, MAX(.2, _drawView.lastTime * 20))) {
             _progressBar.doubleValue = _run.progress;
             _drawView.lastRect = rect;
             [_drawView setNeedsDisplay:YES];
             _run.lastDraw = NSDate.date;
         }
-        if (!_run.lastUpdate || -[_run.lastUpdate timeIntervalSinceNow] > 10) {
+        if (!_run.lastUpdate || -[_run.lastUpdate timeIntervalSinceNow] > 3) {
             NSTimeInterval timeSpan = -[_run.lastUpdate timeIntervalSinceNow];
             double progressSpan = _run.progress - _run.lastProgress;
             NSTimeInterval estimate = (1 - _run.progress) / progressSpan * timeSpan;
-            if (progressSpan <= 0 || estimate <= 0) {
-                _infoLabel.stringValue = [NSString stringWithFormat:@".."];
-            } else if (estimate > 3600 * 1.5) {
-                _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f hours", estimate / 3600];
-            } else if (estimate > 60 * 1.5) {
-                _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f minutes", estimate / 60];
+            if (estimate > 0) {
+                if (_run.lastEstimate > 10) {
+                    estimate = .1 * (estimate - _run.lastEstimate) + _run.lastEstimate;
+                }
+                _run.lastEstimate = estimate;
+                if (estimate > 3600 * 1.5) {
+                    _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f hours", estimate / 3600];
+                } else if (estimate > 60 * 1.5) {
+                    _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f minutes", estimate / 60];
+                } else {
+                    _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f seconds", estimate];
+                }
             } else {
-                _infoLabel.stringValue = [NSString stringWithFormat:@"%.0f seconds", estimate];
+                _infoLabel.stringValue = [NSString stringWithFormat:@".."];
             }
             _run.lastProgress = _run.progress;
             _run.lastUpdate = NSDate.date;
