@@ -54,7 +54,7 @@ Demo Ruby code is included to demonstrate the lookup process in a generated quad
 
     ruby lookup.rb 52 5
     
-The included world geo data is of low accuracy. If you're looking for more details, then use the `world.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
+The included world geo data is of low accuracy. If you're looking for more details, then use the `world-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
 
 
 Geodata
