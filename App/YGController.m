@@ -281,7 +281,7 @@
 {
     if (node.count == 1 || rect.size.width * rect.size.height < 9) {
         for (BOOL first = YES; node.count == 4; first = NO) node = node[first ? 3 : 0];
-        [[self.class colorWithLabel:node[0]] set];
+        [[self.class colorWithLabel:node.count ? node[0] : nil] set];
         NSRectFill(NSInsetRect(rect, .1, .1));
     } else if (node.count == 4) {
         rect.size.width /= 2;
