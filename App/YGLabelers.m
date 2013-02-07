@@ -122,6 +122,13 @@
     return @[@(lng_min), @(lng_max), @(lat_min), @(lat_max)];
 }
 
++ (NSArray *)boxWithPoint:(NSArray *)point radius:(float)radius
+{
+    float lng = [point[0] floatValue];
+    float lat = [point[1] floatValue];
+    return @[@(lng-radius), @(lng+radius), @(lat-radius), @(lat+radius)];
+}
+
 + (NSArray *)flattenGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath
 {
     NSMutableArray *result = @[].mutableCopy;
@@ -149,6 +156,9 @@
                     [result addObject:@[[self boxWithPoly:poly], poly, label]];
                 }
             }
+        } else if ([type isEqualToString:@"Point"]) {
+            NSArray *coordinates = feature[@"geometry"][@"coordinates"];
+            [result addObject:@[[self boxWithPoint:coordinates radius:.4], @[coordinates], label]];
         } else {
             NSLog(@"Unknown geometry type: %@", type);
             return nil;
@@ -165,6 +175,9 @@
 {
     if (point.x < [box[0] floatValue] || point.x > [box[1] floatValue] || point.y < [box[2] floatValue] || point.y > [box[3] floatValue]) {
         return NO;
+    }
+    if (poly.count == 1) {
+        return YES;
     }
     BOOL result = NO;
     for (NSUInteger i = 0, j = poly.count - 1; i < poly.count; i++) {
