@@ -8,7 +8,7 @@ About
 -----
 Yggdrasil turns a simple 2D mapping into a quad tree by recursively sampling coordinates. It can be used for generating a fast lookup for country codes based on a slow lookups like polygon intersection or even web requests.
 
-![Screenshot countries of the world](Yggdrasil/raw/master/Demo/screenshot.png)
+![Screenshot countries of the world](Demo/screenshot.png)
 
 
 Labeler
