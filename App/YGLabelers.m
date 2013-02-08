@@ -86,6 +86,8 @@
 @end
 
 
+static float const YGPointRadius = .5f;
+
 @implementation YGGeoJsonLabeler {
     NSArray *_data;
     NSString *_name;
@@ -158,7 +160,7 @@
             }
         } else if ([type isEqualToString:@"Point"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
-            [result addObject:@[[self boxWithPoint:coordinates radius:.4], @[coordinates], label]];
+            [result addObject:@[[self boxWithPoint:coordinates radius:YGPointRadius], @[coordinates], label]];
         } else {
             NSLog(@"Unknown geometry type: %@", type);
             return nil;
@@ -171,25 +173,27 @@
     return result;
 }
 
-+ (BOOL)point:(NSPoint)point inPoly:(NSArray *)poly inBox:(NSArray *)box
++ (float)distanceFromPoint:(NSPoint)point toPoly:(NSArray *)poly inBox:(NSArray *)box
 {
     if (point.x < [box[0] floatValue] || point.x > [box[1] floatValue] || point.y < [box[2] floatValue] || point.y > [box[3] floatValue]) {
-        return NO;
+        return FLT_MAX;
     }
     if (poly.count == 1) {
-        return YES;
+        float dx = [poly[0][0] floatValue] - point.x;
+        float dy = [poly[0][1] floatValue] - point.y;
+        float dist = dx * dx + dy * dy;
+        return dist <= YGPointRadius * YGPointRadius ? dist : FLT_MAX;
     }
-    BOOL result = NO;
+    BOOL inside = NO;
     for (NSUInteger i = 0, j = poly.count - 1; i < poly.count; i++) {
         if ((   ([poly[i][1] floatValue] <  point.y && [poly[j][1] floatValue] >= point.y)
              || ([poly[j][1] floatValue] <  point.y && [poly[i][1] floatValue] >= point.y))
             &&  ([poly[i][0] floatValue] <= point.x || [poly[j][0] floatValue] <= point.x)) {
-            result ^= ([poly[i][0] floatValue] + (point.y - [poly[i][1] floatValue]) / ([poly[j][1] floatValue] - [poly[i][1] floatValue]) * ([poly[j][0] floatValue] - [poly[i][0] floatValue]) < point.x);
+            inside ^= ([poly[i][0] floatValue] + (point.y - [poly[i][1] floatValue]) / ([poly[j][1] floatValue] - [poly[i][1] floatValue]) * ([poly[j][0] floatValue] - [poly[i][0] floatValue]) < point.x);
         }
         j = i;
     }
-    
-    return result;
+    return inside ? 0 : FLT_MAX;
 }
 
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
@@ -199,13 +203,17 @@
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
+        float min = FLT_MAX;
+        NSString *result = @"";
         for (NSArray *triplet in _data) {
-            if ([self.class point:point inPoly:triplet[1] inBox:triplet[0]]) {
-                if (block) block(triplet[2]);
-                return;
+            float d = [self.class distanceFromPoint:point toPoly:triplet[1] inBox:triplet[0]];
+            if (min > d) {
+                min = d;
+                result = triplet[2];
+                if (min == 0) break;
             }
         }
-        if (block) block(@"");
+        if (block) block(result);
     });
 }
 
