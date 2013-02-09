@@ -110,7 +110,7 @@ static float const YGPointRadius = .5f;
     return [self initWithName:name url:[NSBundle.mainBundle URLForResource:name withExtension:@"json"] labelPath:labelPath];
 }
 
-+ (NSArray *)boxWithPoly:(NSArray *)poly
++ (NSArray *)boxWithPoly:(NSArray *)poly radius:(float)radius
 {
     float lat_min = 180, lat_max = -180, lng_min = 180, lng_max = -180;
     for (NSArray *pair in poly) {
@@ -121,7 +121,7 @@ static float const YGPointRadius = .5f;
         if (lat_min > lat) lat_min = lat;
         if (lat_max < lat) lat_max = lat;
     }
-    return @[@(lng_min), @(lng_max), @(lat_min), @(lat_max)];
+    return @[@(lng_min-radius), @(lng_max+radius), @(lat_min-radius), @(lat_max+radius)];
 }
 
 + (NSArray *)boxWithPoint:(NSArray *)point radius:(float)radius
@@ -149,13 +149,13 @@ static float const YGPointRadius = .5f;
         if ([type isEqualToString:@"Polygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *poly in coordinates) {
-                [result addObject:@[[self boxWithPoly:poly], poly, label]];
+                [result addObject:@[[self boxWithPoly:poly radius:YGPointRadius], poly, label]];
             }
         } else if ([type isEqualToString:@"MultiPolygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *polys in coordinates) {
                 for (NSArray *poly in polys) {
-                    [result addObject:@[[self boxWithPoly:poly], poly, label]];
+                    [result addObject:@[[self boxWithPoly:poly radius:YGPointRadius], poly, label]];
                 }
             }
         } else if ([type isEqualToString:@"Point"]) {
@@ -173,27 +173,47 @@ static float const YGPointRadius = .5f;
     return result;
 }
 
-+ (float)distanceFromPoint:(NSPoint)point toPoly:(NSArray *)poly inBox:(NSArray *)box
++ (float)distanceSqFromPoint:(NSPoint)point toPoly:(NSArray *)poly inBox:(NSArray *)box
 {
     if (point.x < [box[0] floatValue] || point.x > [box[1] floatValue] || point.y < [box[2] floatValue] || point.y > [box[3] floatValue]) {
         return FLT_MAX;
     }
+    float minsq = FLT_MAX;
     if (poly.count == 1) {
         float dx = [poly[0][0] floatValue] - point.x;
         float dy = [poly[0][1] floatValue] - point.y;
-        float dist = dx * dx + dy * dy;
-        return dist <= YGPointRadius * YGPointRadius ? dist : FLT_MAX;
-    }
-    BOOL inside = NO;
-    for (NSUInteger i = 0, j = poly.count - 1; i < poly.count; i++) {
-        if ((   ([poly[i][1] floatValue] <  point.y && [poly[j][1] floatValue] >= point.y)
-             || ([poly[j][1] floatValue] <  point.y && [poly[i][1] floatValue] >= point.y))
-            &&  ([poly[i][0] floatValue] <= point.x || [poly[j][0] floatValue] <= point.x)) {
-            inside ^= ([poly[i][0] floatValue] + (point.y - [poly[i][1] floatValue]) / ([poly[j][1] floatValue] - [poly[i][1] floatValue]) * ([poly[j][0] floatValue] - [poly[i][0] floatValue]) < point.x);
+        minsq = dx * dx + dy * dy;
+    } else if (poly.count > 1) {
+        BOOL inside = NO;
+        CGPoint a = CGPointMake([poly.lastObject[0] floatValue], [poly.lastObject[1] floatValue]);
+        for (NSUInteger i = 0; i < poly.count; i++) {
+            CGPoint b = CGPointMake([poly[i][0] floatValue], [poly[i][1] floatValue]);
+            if ((   (b.y <  point.y && a.y >= point.y)
+                 || (a.y <  point.y && b.y >= point.y))
+                &&  (b.x <= point.x || a.x <= point.x)) {
+                inside ^= (b.x + (point.y - b.y) / (a.y - b.y) * (a.x - b.x) < point.x);
+            }
+            a = b;
         }
-        j = i;
+        if (inside) return 0;
+        a = CGPointMake([poly.lastObject[0] floatValue], [poly.lastObject[1] floatValue]);
+        for (NSUInteger i = 0; i < poly.count; i++) {
+            CGPoint b = CGPointMake([poly[i][0] floatValue], [poly[i][1] floatValue]);
+            CGPoint ab = CGPointMake(b.x - a.x, b.y - a.y);
+            CGPoint ap = CGPointMake(point.x - a.x, point.y - a.y);
+            CGFloat abap = ab.x * ap.x + ab.y * ap.y;
+            CGFloat abab = ab.x * ab.x + ab.y * ab.y;
+            if (abap >= 0 && abap < abab) {
+                CGFloat abxap = fabsf(ab.x * ap.y - ab.y * ap.x);
+                CGFloat dist = abxap * abxap / abab;
+                if (minsq > dist) minsq = dist;
+            }
+            CGFloat apap = ap.x * ap.x + ap.y * ap.y;
+            if (minsq > apap) minsq = apap;
+            a = b;
+        }
     }
-    return inside ? 0 : FLT_MAX;
+    return minsq <= YGPointRadius * YGPointRadius ? minsq : FLT_MAX;
 }
 
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
@@ -206,7 +226,7 @@ static float const YGPointRadius = .5f;
         float min = FLT_MAX;
         NSString *result = @"";
         for (NSArray *triplet in _data) {
-            float d = [self.class distanceFromPoint:point toPoly:triplet[1] inBox:triplet[0]];
+            float d = [self.class distanceSqFromPoint:point toPoly:triplet[1] inBox:triplet[0]];
             if (min > d) {
                 min = d;
                 result = triplet[2];
