@@ -89,7 +89,7 @@
 static float const YGPointRadius = .5f;
 
 @implementation YGGeoJsonLabeler {
-    NSArray *_data;
+    NSArray *_tree;
     NSString *_name;
 }
 
@@ -100,7 +100,8 @@ static float const YGPointRadius = .5f;
         _name = name;
         NSData *d = [NSData dataWithContentsOfURL:url];
         NSDictionary *geojson = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-        _data = [self.class flattenGeoJSON:geojson labelPath:labelPath];
+        NSArray *triplets = [self.class tripletsWithGeoJSON:geojson labelPath:labelPath];
+        _tree = [self.class treeWithTriplets:triplets rect:self.rect];
     }
     return self;
 }
@@ -110,7 +111,7 @@ static float const YGPointRadius = .5f;
     return [self initWithName:name url:[NSBundle.mainBundle URLForResource:name withExtension:@"json"] labelPath:labelPath];
 }
 
-+ (NSArray *)boxWithPoly:(NSArray *)poly radius:(float)radius
++ (NSRect)boxWithPoly:(NSArray *)poly radius:(float)radius
 {
     float lat_min = 180, lat_max = -180, lng_min = 180, lng_max = -180;
     for (NSArray *pair in poly) {
@@ -121,7 +122,7 @@ static float const YGPointRadius = .5f;
         if (lat_min > lat) lat_min = lat;
         if (lat_max < lat) lat_max = lat;
     }
-    return @[@(lng_min-radius), @(lng_max+radius), @(lat_min-radius), @(lat_max+radius)];
+    return NSMakeRect(lng_min - radius, lat_min - radius, lng_max - lng_min + 2 * radius, lat_max - lat_min + 2 * radius);
 }
 
 + (NSArray *)boxWithPoint:(NSArray *)point radius:(float)radius
@@ -131,7 +132,7 @@ static float const YGPointRadius = .5f;
     return @[@(lng-radius), @(lng+radius), @(lat-radius), @(lat+radius)];
 }
 
-+ (NSArray *)flattenGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath
++ (NSArray *)tripletsWithGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath
 {
     NSMutableArray *result = @[].mutableCopy;
     NSArray *features = json[@"features"];
@@ -149,13 +150,15 @@ static float const YGPointRadius = .5f;
         if ([type isEqualToString:@"Polygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *poly in coordinates) {
-                [result addObject:@[[self boxWithPoly:poly radius:YGPointRadius], poly, label]];
+                NSRect rect = [self boxWithPoly:poly radius:YGPointRadius];
+                [result addObject:@[[NSValue valueWithRect:rect], poly, label]];
             }
         } else if ([type isEqualToString:@"MultiPolygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
             for (NSArray *polys in coordinates) {
                 for (NSArray *poly in polys) {
-                    [result addObject:@[[self boxWithPoly:poly radius:YGPointRadius], poly, label]];
+                    NSRect rect = [self boxWithPoly:poly radius:YGPointRadius];
+                    [result addObject:@[[NSValue valueWithRect:rect], poly, label]];
                 }
             }
         } else if ([type isEqualToString:@"Point"]) {
@@ -173,11 +176,41 @@ static float const YGPointRadius = .5f;
     return result;
 }
 
-+ (float)distanceSqFromPoint:(NSPoint)point toPoly:(NSArray *)poly inBox:(NSArray *)box
++ (NSArray *)treeWithTriplets:(NSArray *)triplets rect:(NSRect)rect
 {
-    if (point.x < [box[0] floatValue] || point.x > [box[1] floatValue] || point.y < [box[2] floatValue] || point.y > [box[3] floatValue]) {
-        return FLT_MAX;
+    if (triplets.count < 10) {
+        return @[triplets];
     }
+    NSArray *branches = @[@[].mutableCopy, @[].mutableCopy, @[].mutableCopy, @[].mutableCopy];
+    NSMutableArray *rest = @[].mutableCopy;
+    NSPoint mid = NSMakePoint(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height / 2);
+    for (NSArray *triplet in triplets) {
+        NSRect r = [triplet[0] rectValue];
+        NSUInteger index = 0;
+        if (r.origin.x >= mid.x) {
+            index += 1;
+        } else if (r.origin.x + r.size.width > mid.x) {
+            [rest addObject:triplet];
+            continue;
+        }
+        if (r.origin.y >= mid.y) {
+            index += 2;
+        } else if (r.origin.y + r.size.height > mid.y) {
+            [rest addObject:triplet];
+            continue;
+        }
+        [branches[index] addObject:triplet];
+    }
+    return @[rest,
+             [self treeWithTriplets:branches[0] rect:NSMakeRect(rect.origin.x, rect.origin.y, rect.size.width/2, rect.size.height/2)],
+             [self treeWithTriplets:branches[1] rect:NSMakeRect(rect.origin.x + rect.size.width/2, rect.origin.y, rect.size.width/2, rect.size.height/2)],
+             [self treeWithTriplets:branches[2] rect:NSMakeRect(rect.origin.x, rect.origin.y + rect.size.height/2, rect.size.width/2, rect.size.height/2)],
+             [self treeWithTriplets:branches[3] rect:NSMakeRect(rect.origin.x + rect.size.width/2, rect.origin.y + rect.size.height/2, rect.size.width/2, rect.size.height/2)],
+             ];
+}
+
++ (float)distanceSqFromPoint:(NSPoint)point toPoly:(NSArray *)poly
+{
     float minsq = FLT_MAX;
     if (poly.count == 1) {
         float dx = [poly[0][0] floatValue] - point.x;
@@ -216,6 +249,29 @@ static float const YGPointRadius = .5f;
     return minsq <= YGPointRadius * YGPointRadius ? minsq : FLT_MAX;
 }
 
+- (void)collectAt:(NSPoint)point tree:(NSArray *)tree rect:(NSRect)rect into:(NSMutableArray *)array
+{
+    if (tree.count > 1) {
+        NSUInteger index = 1;
+        rect.size.width /= 2;
+        rect.size.height /= 2;
+        if (point.x >= rect.origin.x + rect.size.width) {
+            index += 1;
+            rect.origin.x += rect.size.width;
+        }
+        if (point.y >= rect.origin.y + rect.size.height) {
+            index += 2;
+            rect.origin.y += rect.size.height;
+        }
+        [self collectAt:point tree:tree[index] rect:rect into:array];
+    }
+    for (NSArray *triplet in tree[0]) {
+        if (NSPointInRect(point, [triplet[0] rectValue])) {
+            [array addObject:triplet];
+        }
+    }
+}
+
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
 {
     if (point.y >= 90 || point.y <= -90) {
@@ -225,8 +281,10 @@ static float const YGPointRadius = .5f;
     dispatch_async(dispatch_get_main_queue(), ^{
         float min = FLT_MAX;
         NSString *result = @"";
-        for (NSArray *triplet in _data) {
-            float d = [self.class distanceSqFromPoint:point toPoly:triplet[1] inBox:triplet[0]];
+        NSMutableArray *triplets = @[].mutableCopy;
+        [self collectAt:point tree:_tree rect:self.rect into:triplets];
+        for (NSArray *triplet in triplets) {
+            float d = [self.class distanceSqFromPoint:point toPoly:triplet[1]];
             if (min > d) {
                 min = d;
                 result = triplet[2];
