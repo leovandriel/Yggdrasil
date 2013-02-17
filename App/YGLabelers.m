@@ -89,7 +89,6 @@
 @implementation YGGeoJsonLabeler {
     NSArray *_tree;
     NSString *_name;
-    float _radius;
 }
 
 - (id)initWithName:(NSString *)name url:(NSURL *)url labelPath:(NSString *)labelPath radius:(float)radius
@@ -97,10 +96,9 @@
     self = [super init];
     if (self) {
         _name = name;
-        _radius = radius;
         NSData *d = [NSData dataWithContentsOfURL:url];
         NSDictionary *geojson = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-        NSArray *leafs = [self.class leafsWithGeoJSON:geojson labelPath:labelPath radius:radius];
+        NSArray *leafs = [self.class leafsWithGeoJSON:geojson labelPath:labelPath defaultRadius:radius];
         _tree = [self.class treeWithLeafs:leafs rect:self.rect];
     }
     return self;
@@ -137,10 +135,10 @@
         if (lat_max < point.y) lat_max = point.y;
     }
     NSRect box = NSMakeRect(lng_min - radius, lat_min - radius, lng_max - lng_min + 2 * radius, lat_max - lat_min + 2 * radius);
-    return @[[NSValue valueWithRect:box], poly, label];
+    return @[[NSValue valueWithRect:box], poly, @(radius), label];
 }
 
-+ (NSArray *)leafsWithGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath radius:(float)radius
++ (NSArray *)leafsWithGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath defaultRadius:(float)defaultRadius
 {
     NSMutableArray *result = @[].mutableCopy;
     NSArray *features = json[@"features"];
@@ -157,11 +155,13 @@
         NSString *type = feature[@"geometry"][@"type"];
         if ([type isEqualToString:@"Polygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
+            float radius = feature[@"geometry"][@"radius"] ? [feature[@"geometry"][@"radius"] floatValue] : defaultRadius;
             for (NSArray *pairs in coordinates) {
                 [result addObject:[self leafWithPairs:pairs radius:radius label:label]];
             }
         } else if ([type isEqualToString:@"MultiPolygon"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
+            float radius = feature[@"geometry"][@"radius"] ? [feature[@"geometry"][@"radius"] floatValue] : defaultRadius;
             for (NSArray *polys in coordinates) {
                 for (NSArray *pairs in polys) {
                     [result addObject:[self leafWithPairs:pairs radius:radius label:label]];
@@ -169,6 +169,7 @@
             }
         } else if ([type isEqualToString:@"Point"]) {
             NSArray *pairs = @[feature[@"geometry"][@"coordinates"]];
+            float radius = feature[@"geometry"][@"radius"] ? [feature[@"geometry"][@"radius"] floatValue] : defaultRadius;
             [result addObject:[self leafWithPairs:pairs radius:radius label:label]];
         } else {
             NSLog(@"Unknown geometry type: %@", type);
@@ -278,13 +279,13 @@
         result = [self labelAtPoint:point tree:tree[index] rect:rect min:min];
         if (*min == 0) return result;
     }
-    float radiusSq = _radius * _radius;
     for (NSArray *leaf in tree[0]) {
         if (NSPointInRect(point, [leaf[0] rectValue])) {
             float distSq = [self.class distanceSqFromPoint:point toPoly:leaf[1]];
-            if (*min > distSq && radiusSq >= distSq) {
+            float radius = [leaf[2] floatValue];
+            if (*min > distSq && radius * radius >= distSq) {
                 *min = distSq;
-                result = leaf[2];
+                result = leaf[3];
                 if (*min == 0) return result;
             }
         }
