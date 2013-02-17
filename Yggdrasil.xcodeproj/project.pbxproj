@@ -18,7 +18,8 @@
 		B3335C6416A5554100AE03E4 /* YGLabelers.m in Sources */ = {isa = PBXBuildFile; fileRef = B3335C6016A5554100AE03E4 /* YGLabelers.m */; };
 		B3335C6516A5554100AE03E4 /* YGScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = B3335C6216A5554100AE03E4 /* YGScanner.m */; };
 		B33A907116AAD740004294D0 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B33A907016AAD740004294D0 /* icon.icns */; };
-		B33A907416AB17A2004294D0 /* world.json in Resources */ = {isa = PBXBuildFile; fileRef = B33A907316AB17A2004294D0 /* world.json */; };
+		B33A907416AB17A2004294D0 /* countries.json in Resources */ = {isa = PBXBuildFile; fileRef = B33A907316AB17A2004294D0 /* countries.json */; };
+		B3B5A17516D0CB660038CFEF /* cities.json in Resources */ = {isa = PBXBuildFile; fileRef = B3B5A17416D0CB660038CFEF /* cities.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +56,8 @@
 		B3335C6116A5554100AE03E4 /* YGScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YGScanner.h; sourceTree = "<group>"; };
 		B3335C6216A5554100AE03E4 /* YGScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YGScanner.m; sourceTree = "<group>"; };
 		B33A907016AAD740004294D0 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
-		B33A907316AB17A2004294D0 /* world.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = world.json; sourceTree = "<group>"; };
+		B33A907316AB17A2004294D0 /* countries.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.json; sourceTree = "<group>"; };
+		B3B5A17416D0CB660038CFEF /* cities.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cities.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,7 +133,8 @@
 				B3335C4616A5534A00AE03E4 /* YGAppDelegate.h */,
 				B3335C4716A5534A00AE03E4 /* YGAppDelegate.m */,
 				B3335C4516A5534A00AE03E4 /* MainMenu.xib */,
-				B33A907316AB17A2004294D0 /* world.json */,
+				B33A907316AB17A2004294D0 /* countries.json */,
+				B3B5A17416D0CB660038CFEF /* cities.json */,
 				B3335C6616A5572A00AE03E4 /* Supporting Files */,
 			);
 			path = App;
@@ -229,7 +232,8 @@
 			files = (
 				B3335C4B16A5534A00AE03E4 /* MainMenu.xib in Resources */,
 				B33A907116AAD740004294D0 /* icon.icns in Resources */,
-				B33A907416AB17A2004294D0 /* world.json in Resources */,
+				B33A907416AB17A2004294D0 /* countries.json in Resources */,
+				B3B5A17516D0CB660038CFEF /* cities.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

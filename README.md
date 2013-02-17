@@ -54,12 +54,12 @@ Demo Ruby code is included to demonstrate the lookup process in a generated quad
 
     ruby lookup.rb 52 5
     
-The included world geo data is of low accuracy. If you're looking for more details, then use the `world-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
+The included countries geo data is of low accuracy. If you're looking for more details, then use the `countries-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
 
 
 Geodata
 -------
-The `YGGeoJsonLabeler` class relies on the file `world.json`, which is included in this project. This file contains [GeoJSON](http://www.geojson.org/geojson-spec.html) data that was downloaded from [github.com/johan/world.geo.json](https://github.com/johan/world.geo.json).
+The `YGGeoJsonLabeler` class can be used with the file `countries.json`, which is included in this project. This file contains [GeoJSON](http://www.geojson.org/geojson-spec.html) data that was downloaded from [github.com/johan/world.geo.json](https://github.com/johan/world.geo.json).
 
 More geo data can be found here:
 
@@ -68,11 +68,11 @@ More geo data can be found here:
 * [www.unsalb.org](http://www.unsalb.org/)
 * [www.thematicmapping.org](http://thematicmapping.org/downloads/world_borders.php)
 * [www.mappinghacks.com](http://www.mappinghacks.com/data/)
-* [www..geonames.org](http://download.geonames.org/export/dump/)
+* [www.geonames.org](http://download.geonames.org/export/dump/)
 
 Use [GDAL](http://www.gdal.org/) to convert formats. On OS X this can be installed with [Homebrew](http://mxcl.github.com/homebrew/). Example usage:
 
-    ogr2ogr -f GeoJSON world.json world.shp
+    ogr2ogr -f GeoJSON countries.json countries.shp
 
 
 License

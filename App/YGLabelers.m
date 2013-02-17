@@ -125,11 +125,11 @@ static float const YGPointRadius = .5f;
     return NSMakeRect(lng_min - radius, lat_min - radius, lng_max - lng_min + 2 * radius, lat_max - lat_min + 2 * radius);
 }
 
-+ (NSArray *)boxWithPoint:(NSArray *)point radius:(float)radius
++ (NSRect)boxWithPoint:(NSArray *)point radius:(float)radius
 {
     float lng = [point[0] floatValue];
     float lat = [point[1] floatValue];
-    return @[@(lng-radius), @(lng+radius), @(lat-radius), @(lat+radius)];
+    return NSMakeRect(lng - radius, lat - radius, 2 * radius, 2 * radius);
 }
 
 + (NSArray *)tripletsWithGeoJSON:(NSDictionary *)json labelPath:(NSString *)labelPath
@@ -163,7 +163,8 @@ static float const YGPointRadius = .5f;
             }
         } else if ([type isEqualToString:@"Point"]) {
             NSArray *coordinates = feature[@"geometry"][@"coordinates"];
-            [result addObject:@[[self boxWithPoint:coordinates radius:YGPointRadius], @[coordinates], label]];
+            NSRect rect = [self boxWithPoint:coordinates radius:YGPointRadius];
+            [result addObject:@[[NSValue valueWithRect:rect], @[coordinates], label]];
         } else {
             NSLog(@"Unknown geometry type: %@", type);
             return nil;
