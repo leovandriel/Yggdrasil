@@ -68,6 +68,7 @@ More geo data can be found here:
 * [www.unsalb.org](http://www.unsalb.org/)
 * [www.thematicmapping.org](http://thematicmapping.org/downloads/world_borders.php)
 * [www.mappinghacks.com](http://www.mappinghacks.com/data/)
+* [www..geonames.org](http://download.geonames.org/export/dump/)
 
 Use [GDAL](http://www.gdal.org/) to convert formats. On OS X this can be installed with [Homebrew](http://mxcl.github.com/homebrew/). Example usage:
 
