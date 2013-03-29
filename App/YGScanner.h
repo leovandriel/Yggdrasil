@@ -26,6 +26,8 @@ typedef NSMutableArray YGNode;
 - (void)processNode:(YGNode *)node block:(void(^)(BOOL))block;
 - (void)cancel;
 
+- (void)clearCache;
++ (void)clearCacheWithName:(NSString *)name;
 + (YGNode *)nodeAt:(NSPoint)point node:(YGNode *)node rect:(NSRect)rect;
 + (NSString *)tempDir;
 

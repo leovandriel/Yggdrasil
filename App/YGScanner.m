@@ -47,11 +47,16 @@ void dispatch_if_async(dispatch_queue_t queue, dispatch_block_t block);
     return result;
 }
 
++ (NSString *)cachePathWithName:(NSString *)name
+{
+    return [[self.class tempDir] stringByAppendingPathComponent:[name stringByAppendingString:@".cache"]];;
+}
+
 - (void)loadCache
 {
     _cache = @{}.mutableCopy;
     if (_useCaching && _labeler.name.length) {
-        NSString *path = [[self.class tempDir] stringByAppendingPathComponent:[_labeler.name stringByAppendingString:@".cache"]];
+        NSString *path = [self.class cachePathWithName:_labeler.name];
         NSData *data = [NSData dataWithContentsOfFile:path];
         if (data.length) {
             _cache = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
@@ -65,10 +70,24 @@ void dispatch_if_async(dispatch_queue_t queue, dispatch_block_t block);
     if (_useCaching && _labeler.name.length) {
         NSData *data = [NSJSONSerialization dataWithJSONObject:_cache options:0 error:nil];
         if (data.length) {
-            NSString *path = [[self.class tempDir] stringByAppendingPathComponent:[_labeler.name stringByAppendingString:@".cache"]];
+            NSString *path = [self.class cachePathWithName:_labeler.name];
             [data writeToFile:path atomically:NO];
             _lastSave = NSDate.date;
         }
+    }
+}
+
+- (void)clearCache
+{
+    _cache = @{}.mutableCopy;
+    [self saveCache];
+}
+
++ (void)clearCacheWithName:(NSString *)name
+{
+    if (name.length) {
+        NSString *path = [self.class cachePathWithName:name];
+        [NSFileManager.defaultManager removeItemAtPath:path error:nil];
     }
 }
 

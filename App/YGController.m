@@ -66,6 +66,11 @@
     [self select:nil];
 }
 
++ (NSString *)nodePathWithName:(NSString *)name
+{
+    return [[YGScanner tempDir] stringByAppendingPathComponent:[name stringByAppendingString:@".ygg"]];
+}
+
 + (void)saveNode:(YGNode *)node name:(NSString *)name
 {
     NSData *data = [NSJSONSerialization dataWithJSONObject:node options:0 error:nil];
@@ -77,7 +82,7 @@
         string = [string stringByReplacingOccurrencesOfString:@"[\"" withString:@""];
         string = [string stringByReplacingOccurrencesOfString:@"\"]" withString:@""];
         string = [string stringByReplacingOccurrencesOfString:@"[]" withString:@""];
-        NSString *path = [[YGScanner tempDir] stringByAppendingPathComponent:[name stringByAppendingString:@".ygg"]];
+        NSString *path = [self nodePathWithName:name];
         [string writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:nil];
     }
 }
@@ -86,7 +91,7 @@
 {
     YGNode *result = [[YGNode alloc] init];
     if (name.length) {
-        NSString *path = [[YGScanner tempDir] stringByAppendingPathComponent:[name stringByAppendingString:@".ygg"]];
+        NSString *path = [self nodePathWithName:name];
         NSString *string = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
         if (string.length) {
             string = [string stringByReplacingOccurrencesOfString:@"([^,\\[\\]]+)" withString:@"[\"$1\"]" options:NSRegularExpressionSearch range:NSMakeRange(0, string.length)];
@@ -98,6 +103,14 @@
         }
     }
     return result;
+}
+
++ (void)clearNodeWithName:(NSString *)name
+{
+    if (name.length) {
+        NSString *path = [self.class nodePathWithName:name];
+        [NSFileManager.defaultManager removeItemAtPath:path error:nil];
+    }
 }
 
 
@@ -167,6 +180,20 @@
 {
     [_run.scanner cancel];
     _run = nil;
+}
+
+- (IBAction)clear:(id)sender
+{
+    if (_labelerCombo.stringValue) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"When you clear this label, all label data and cache will be deleted." defaultButton:@"Cancel" alternateButton:@"Clear Label" otherButton:nil informativeTextWithFormat:@"This is generally desired if the underlying labeler changed and you want to get rid of all cached labels."];
+        if ([alert runModal] == NSAlertAlternateReturn) {
+            [_run.scanner cancel];
+            [_run.scanner clearCache];
+            [YGScanner clearCacheWithName:_labelerCombo.stringValue];
+            [self.class clearNodeWithName:_labelerCombo.stringValue];
+            [self select:nil];
+        }
+    }
 }
 
 #pragma mark - Scanner callback
