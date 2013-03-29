@@ -21,13 +21,13 @@ def read_world
   JSON.parse json
 end
 
-def get_country_at point, cell, rect = {x: -180, y: -180, width: 360, height: 360}
+def label_at point, cell, rect = {x: -180, y: -180, width: 360, height: 360}
   if cell.size == 4
     rect[:width] /= 2.0 and rect[:height] /= 2.0
     index = 0
     index += 1 and rect[:x] += rect[:width] if point[:lng] >= rect[:x] + rect[:width]
     index += 2 and rect[:y] += rect[:height] if point[:lat] >= rect[:y] + rect[:height]
-    return get_country_at point, cell[index], rect
+    return label_at point, cell[index], rect
   end
   cell[0].empty? ? "none" : cell[0]
 end
@@ -38,12 +38,12 @@ if ARGV.size == 2
   lat = ARGV[0].to_f
   lng = ARGV[1].to_f
   coord = "#{lat.abs} #{lat >= 0 ? 'N' : 'S'} #{lng.abs} #{lng >= 0 ? 'E' : 'W'}"
-  puts "Country at #{coord} is " + get_country_at({lat: lat, lng: lng}, cell)
+  puts "Country at #{coord} is " + label_at({lat: lat, lng: lng}, cell)
 else
   puts "usage: lookup.rb latitude longitude"
   puts "example output:"
-  puts "Country at 52N 5E is " + get_country_at({lat: 52, lng: 5}, cell)
-  puts "Country at 8N 81W is " + get_country_at({lat: 8, lng: -81}, cell)
+  puts "Country at 52N 5E is " + label_at({lat: 52, lng: 5}, cell)
+  puts "Country at 8N 81W is " + label_at({lat: 8, lng: -81}, cell)
 end
 
 __END__

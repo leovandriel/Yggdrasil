@@ -14,7 +14,7 @@
 @interface YGLookup : NSObject
 
 - (void)loadYggString:(NSString *)string;
-- (NSString *)valueAt:(NSPoint)point;
+- (NSString *)labelAt:(NSPoint)point;
 
 @end
 
@@ -25,16 +25,16 @@
 
 - (void)loadYggString:(NSString *)string
 {
-    _root = [self.class nodeFromYggString:string];
+    _root = [self.class treeFromYggString:string];
     
 }
 
-- (NSString *)valueAt:(NSPoint)point
+- (NSString *)labelAt:(NSPoint)point
 {
-    return [self.class nodeAt:point node:_root rect:NSMakeRect(-180, -180, 360, 360)];
+    return [self.class labelAt:point node:_root rect:NSMakeRect(-180, -180, 360, 360)];
 }
 
-+ (NSArray *)nodeFromYggString:(NSString *)string
++ (NSArray *)treeFromYggString:(NSString *)string
 {
     string = [string stringByReplacingOccurrencesOfString:@"([^,\\[\\]]+)" withString:@"[\"$1\"]" options:NSRegularExpressionSearch range:NSMakeRange(0, string.length)];
     string = [string stringByReplacingOccurrencesOfString:@"[," withString:@"[[\"\"],"];
@@ -44,7 +44,7 @@
     return [NSJSONSerialization JSONObjectWithData:[string dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 }
 
-+ (NSString *)nodeAt:(NSPoint)point node:(NSArray *)node rect:(NSRect)rect
++ (NSString *)labelAt:(NSPoint)point node:(NSArray *)node rect:(NSRect)rect
 {
     if (node.count == 4) {
         NSUInteger index = 0;
@@ -58,7 +58,7 @@
             index += 2;
             rect.origin.y += rect.size.height;
         }
-        return [self nodeAt:point node:node[index] rect:rect];
+        return [self labelAt:point node:node[index] rect:rect];
     }
     return node[0];
 }
@@ -76,13 +76,13 @@ int main(int argc, const char * argv[])
         [lookup loadYggString:ygg];
         if (argc == 3) {
             NSPoint point = NSMakePoint(atof(argv[2]), atof(argv[1]));
-            NSString *city = [lookup valueAt:point];
+            NSString *city = [lookup labelAt:point];
             NSLog(@"City at %.1f %c %.1f %c is %@", point.y, point.y >= 0 ? 'N' : 'S', point.x, point.x >= 0 ? 'E' : 'W', city.length ? city : @"none");
         } else {
             NSLog(@"usage: lookup latitude longitude");
             NSLog(@"example output:");
-            NSLog(@"City at 52N 5W is %@", [lookup valueAt:NSMakePoint(5, 52)]);
-            NSLog(@"City at 48N 122E is %@", [lookup valueAt:NSMakePoint(-122, 48)]);
+            NSLog(@"City at 52N 5E is %@", [lookup labelAt:NSMakePoint(5, 52)]);
+            NSLog(@"City at 48N 122W is %@", [lookup labelAt:NSMakePoint(-122, 48)]);
         }
     }
     return 0;
