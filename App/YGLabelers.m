@@ -106,7 +106,7 @@
 
 - (id)initWithName:(NSString *)name labelPath:(NSString *)labelPath
 {
-    return [self initWithName:name url:[NSBundle.mainBundle URLForResource:name withExtension:@"json"] labelPath:labelPath radius:.5f];
+    return [self initWithName:name url:[NSBundle.mainBundle URLForResource:name withExtension:@"json"] labelPath:labelPath radius:1.f];
 }
 
 - (NSString *)name
