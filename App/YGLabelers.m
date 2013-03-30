@@ -59,11 +59,11 @@
         NSPoint p = point;
         for (NSUInteger i = 0;; i++) {
             if (p.x * p.x + p.y * p.y > 4) {
-                if (block) block(@"");
+                if (block) block([NSString stringWithFormat:@"%c%c", 'a' + ((char)i & 0x0F), 'a' + ((char)(i >> 4) & 0x0F)]);
                 break;
             }
-            if (i > 100) {
-                if (block) block(@"0");
+            if (i > 255) {
+                if (block) block(@"");
                 break;
             }
             float t = p.x * p.x - p.y * p.y + point.x;
