@@ -7,6 +7,7 @@
 
 #import "YGController.h"
 #import "YGLabelers.h"
+#import "YGFormat.h"
 
 
 @interface YGView : NSView
@@ -66,6 +67,9 @@
     [self select:nil];
 }
 
+
+#pragma mark - Tree serialization
+
 + (NSString *)nodePathWithName:(NSString *)name
 {
     return [[YGScanner tempDir] stringByAppendingPathComponent:[name stringByAppendingString:@".ygg"]];
@@ -73,36 +77,21 @@
 
 + (void)saveNode:(YGNode *)node name:(NSString *)name
 {
-    NSData *data = [NSJSONSerialization dataWithJSONObject:node options:0 error:nil];
-    if (data.length) {
-        NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        string = [string stringByReplacingOccurrencesOfString:@"],[" withString:@"]["];
-        string = [string stringByReplacingOccurrencesOfString:@"," withString:@"_"];
-        string = [string stringByReplacingOccurrencesOfString:@"][" withString:@"],["];
-        string = [string stringByReplacingOccurrencesOfString:@"[\"" withString:@""];
-        string = [string stringByReplacingOccurrencesOfString:@"\"]" withString:@""];
-        string = [string stringByReplacingOccurrencesOfString:@"[]" withString:@""];
+    if (node && name.length) {
+        NSData *data = [YGFormat dataWithNode:node];
         NSString *path = [self nodePathWithName:name];
-        [string writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:nil];
+        [data writeToFile:path atomically:NO];
     }
 }
 
 + (YGNode *)loadName:(NSString *)name
 {
-    YGNode *result = [[YGNode alloc] init];
     if (name.length) {
         NSString *path = [self nodePathWithName:name];
-        NSString *string = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-        if (string.length) {
-            string = [string stringByReplacingOccurrencesOfString:@"([^,\\[\\]]+)" withString:@"[\"$1\"]" options:NSRegularExpressionSearch range:NSMakeRange(0, string.length)];
-            string = [string stringByReplacingOccurrencesOfString:@"[," withString:@"[[\"\"],"];
-            string = [string stringByReplacingOccurrencesOfString:@",," withString:@",[\"\"],"];
-            string = [string stringByReplacingOccurrencesOfString:@",," withString:@",[\"\"],"];
-            string = [string stringByReplacingOccurrencesOfString:@",]" withString:@",[\"\"]]"];
-            result = [NSJSONSerialization JSONObjectWithData:[string dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
-        }
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        return [YGFormat nodeWithData:data];
     }
-    return result;
+    return nil;
 }
 
 + (void)clearNodeWithName:(NSString *)name

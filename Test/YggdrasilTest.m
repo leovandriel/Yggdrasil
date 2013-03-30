@@ -8,17 +8,21 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "YGScanner.h"
 #import "YGLabelers.h"
+#import "YGFormat.h"
 
 
 @interface YggdrasilTest : SenTestCase
 @end
 @implementation YggdrasilTest
 
-- (NSString *)flat:(id)object
+- (NSString *)flat:(YGNode *)node
 {
-    NSString *result = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:object options:0 error:nil] encoding:NSUTF8StringEncoding];
-    result = [result stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-    return result;
+    return [[[NSString alloc] initWithData:[YGFormat plainDataWithNode:node] encoding:NSUTF8StringEncoding] substringFromIndex:8];
+}
+
+- (YGNode *)node:(NSString *)string
+{
+    return [YGFormat nodeWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (void)testNoDepth
@@ -33,7 +37,7 @@
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
         STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[N]", @"");
+        STAssertEqualObjects([self flat:node], @"N", @"");
         done = YES;
     }];
     STAssertTrue(done, @"");
@@ -51,7 +55,7 @@
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
         STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[[N],[0],[N],[0]]", @"");
+        STAssertEqualObjects([self flat:node], @"[N,0,N,0]", @"");
         done = YES;
     }];
     STAssertTrue(done, @"");
@@ -69,7 +73,7 @@
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
         STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[[N],[[0],[P],[0],[P]],[N],[[0],[P],[0],[P]]]", @"");
+        STAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
         done = YES;
     }];
     STAssertTrue(done, @"");
@@ -87,7 +91,7 @@
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
         STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[[N],[[0],[P],[0],[P]],[N],[[0],[P],[0],[P]]]", @"");
+        STAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
         done = YES;
     }];
     STAssertTrue(done, @"");
@@ -105,11 +109,19 @@
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
         STAssertTrue(finished, @"");
-        STAssertEquals((int)[self flat:node].length, 185, @"");
+        STAssertEquals((int)[self flat:node].length, 105, @"");
         done = YES;
     }];
     STAssertTrue(done, @"");
 }
 
+- (void)testTextFormat
+{
+    NSData *data = [YGFormat textDataWithNode:[self node:@"[N,[,P,,P],N,[,P,,P]]"]];
+    NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    STAssertEqualObjects(text, @"YGG:txt:2,4,P,N,[2,[,1,,0],2,[,1,,0]]", @"");
+    NSString *plain = [self flat:[YGFormat nodeWithData:data]];
+    STAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
+}
 
 @end
