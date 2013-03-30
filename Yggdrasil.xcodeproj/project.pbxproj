@@ -19,6 +19,7 @@
 		B3335C6516A5554100AE03E4 /* YGScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = B3335C6216A5554100AE03E4 /* YGScanner.m */; };
 		B33A907116AAD740004294D0 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B33A907016AAD740004294D0 /* icon.icns */; };
 		B33A907416AB17A2004294D0 /* countries.json in Resources */ = {isa = PBXBuildFile; fileRef = B33A907316AB17A2004294D0 /* countries.json */; };
+		B3AF0E2717079F2D002DC879 /* YGFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = B3AF0E2617079F2D002DC879 /* YGFormat.m */; };
 		B3B5A17516D0CB660038CFEF /* cities.json in Resources */ = {isa = PBXBuildFile; fileRef = B3B5A17416D0CB660038CFEF /* cities.json */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +58,8 @@
 		B3335C6216A5554100AE03E4 /* YGScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YGScanner.m; sourceTree = "<group>"; };
 		B33A907016AAD740004294D0 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		B33A907316AB17A2004294D0 /* countries.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.json; sourceTree = "<group>"; };
+		B3AF0E2517079F2D002DC879 /* YGFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YGFormat.h; sourceTree = "<group>"; };
+		B3AF0E2617079F2D002DC879 /* YGFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YGFormat.m; sourceTree = "<group>"; };
 		B3B5A17416D0CB660038CFEF /* cities.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cities.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -128,6 +131,8 @@
 				B3335C6216A5554100AE03E4 /* YGScanner.m */,
 				B3335C5F16A5554100AE03E4 /* YGLabelers.h */,
 				B3335C6016A5554100AE03E4 /* YGLabelers.m */,
+				B3AF0E2517079F2D002DC879 /* YGFormat.h */,
+				B3AF0E2617079F2D002DC879 /* YGFormat.m */,
 				B3335C5D16A5554100AE03E4 /* YGController.h */,
 				B3335C5E16A5554100AE03E4 /* YGController.m */,
 				B3335C4616A5534A00AE03E4 /* YGAppDelegate.h */,
@@ -272,6 +277,7 @@
 				B3335C6316A5554100AE03E4 /* YGController.m in Sources */,
 				B3335C6416A5554100AE03E4 /* YGLabelers.m in Sources */,
 				B3335C6516A5554100AE03E4 /* YGScanner.m in Sources */,
+				B3AF0E2717079F2D002DC879 /* YGFormat.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
