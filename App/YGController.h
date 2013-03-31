@@ -10,7 +10,7 @@
 
 @interface YGController : NSObject <YGProgressDelegate>
 
-- (void)setupWithLabelers:(NSArray *)labelers min:(NSUInteger)min max:(NSUInteger)max sub:(NSUInteger)sub;
+- (void)setupWithLabelers:(NSArray *)labelers depth:(NSUInteger)depth;
 - (void)stop;
 
 @end

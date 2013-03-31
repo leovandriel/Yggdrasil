@@ -32,8 +32,9 @@
 
 - (void)labelAtPoint:(NSPoint)p block:(void (^)(NSString *))block
 {
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, .01 * NSEC_PER_SEC);
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+//    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, .01 * NSEC_PER_SEC);
+//    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+    dispatch_async(dispatch_get_main_queue(), ^(void){
         if (block) block(p.x * p.x + p.y * p.y < 1 ? @"0" : @"");
     });
 }

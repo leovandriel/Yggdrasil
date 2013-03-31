@@ -17,12 +17,12 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
     NSArray *labelers = @[
-        [[YGCircleLabeler alloc] init],
-        [[YGMandelbrotLabeler alloc] init],
-        [[YGGeoJsonLabeler alloc] initWithName:@"countries" labelPath:@"properties.name"],
-        [[YGGeoJsonLabeler alloc] initWithName:@"cities" labelPath:@"properties.name"],
-    ];
-    [controller setupWithLabelers:labelers min:4 max:8 sub:2];
+                          [[YGGeoJsonLabeler alloc] initWithName:@"countries" labelPath:@"properties.name"],
+                          [[YGGeoJsonLabeler alloc] initWithName:@"cities" labelPath:@"properties.name"],
+                          [[YGMandelbrotLabeler alloc] init],
+                          [[YGCircleLabeler alloc] init],
+                          ];
+    [controller setupWithLabelers:labelers depth:8];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification

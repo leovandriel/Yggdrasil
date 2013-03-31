@@ -38,12 +38,8 @@
     IBOutlet NSButton *_runButton;
     IBOutlet NSProgressIndicator *_progressBar;
     IBOutlet NSTextField *_infoLabel;
-    IBOutlet NSStepper *_minStepper;
-    IBOutlet NSStepper *_maxStepper;
-    IBOutlet NSStepper *_subStepper;
-    IBOutlet NSTextField *_minLabel;
-    IBOutlet NSTextField *_maxLabel;
-    IBOutlet NSTextField *_subLabel;
+    IBOutlet NSStepper *_depthStepper;
+    IBOutlet NSTextField *_depthLabel;
     IBOutlet NSComboBox *_labelerCombo;
     IBOutlet NSPopUpButton *_exportButton;
     NSArray *_labelers;
@@ -53,12 +49,10 @@
 
 #pragma mark - Object life cycle
 
-- (void)setupWithLabelers:(NSArray *)labelers min:(NSUInteger)min max:(NSUInteger)max sub:(NSUInteger)sub
+- (void)setupWithLabelers:(NSArray *)labelers depth:(NSUInteger)depth
 {
     _labelers = labelers;
-    _minStepper.intValue = min;
-    _maxStepper.intValue = max;
-    _subStepper.intValue = sub;
+    _depthStepper.intValue = depth;
     [_labelerCombo removeAllItems];
     for (id<YGLabeler> labeler in labelers) {
         [_labelerCombo addItemWithObjectValue:labeler.name];
@@ -90,7 +84,7 @@
     if (name.length) {
         NSString *path = [self nodePathWithName:name];
         NSData *data = [NSData dataWithContentsOfFile:path];
-        return [YGFormat nodeWithData:data];
+        if (data) return [YGFormat nodeWithData:data];
     }
     return nil;
 }
@@ -116,7 +110,8 @@
         _run.labeler = _labelers[_labelerCombo.indexOfSelectedItem];
         _run.node = [[YGNode alloc] init];
         _run.node.array = _drawView.node;
-        _run.scanner = [[YGScanner alloc] initWithLabeler:_run.labeler minDepth:_minStepper.intValue maxDepth:_maxStepper.intValue subSample:_subStepper.intValue];
+        NSUInteger max = _depthStepper.integerValue, min = MAX(max, 2) - 2, sub = 2;
+        _run.scanner = [[YGScanner alloc] initWithLabeler:_run.labeler minDepth:min maxDepth:max subSample:sub];
         _run.scanner.delegate = self;
 
         _progressBar.doubleValue = 0;
@@ -150,9 +145,7 @@
 
 - (IBAction)step:(id)sender
 {
-    _minLabel.stringValue = [NSString stringWithFormat:@"min:%u", _minStepper.intValue];
-    _maxLabel.stringValue = [NSString stringWithFormat:@"max:%u", _maxStepper.intValue];
-    _subLabel.stringValue = [NSString stringWithFormat:@"sub:%u", _subStepper.intValue];
+    _depthLabel.stringValue = [NSString stringWithFormat:@"depth:%u", _depthStepper.intValue];
 }
 
 - (IBAction)select:(id)sender
