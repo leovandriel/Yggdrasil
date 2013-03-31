@@ -102,7 +102,7 @@ int main(int argc, const char * argv[])
         if (argc == 3) {
             NSPoint point = NSMakePoint(atof(argv[2]), atof(argv[1]));
             NSString *label = [lookup labelAt:point];
-            NSLog(@"Country at %.1f %c %.1f %c is %@", point.y, point.y >= 0 ? 'N' : 'S', point.x, point.x >= 0 ? 'E' : 'W', label.length ? label : @"none");
+            NSLog(@"Country at %.1f %c %.1f %c is %@", fabs(point.y), point.y >= 0 ? 'N' : 'S', fabs(point.x), point.x >= 0 ? 'E' : 'W', label.length ? label : @"none");
         } else {
             NSLog(@"usage: lookup latitude longitude");
             NSLog(@"example output:");
