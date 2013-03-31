@@ -153,7 +153,7 @@
 {
     NSData *data = [YGFormat binaryDataWithNode:[self node:@"[N,[,P,,P],N,[,P,,P]]"]];
     NSLog(@"%.*s", (int)data.length, data.bytes);
-    STAssertEqualObjects(data.description, @"<5947473a 62696e3a 82845000 4e00bb82 21818221 81>", @"");
+    STAssertEqualObjects(data.description, @"<5947473a 626e323a 10000002 10000004 1000000d 10000007 50004e00 bb822181 822181>", @"");
     NSString *plain = [self flat:[YGFormat nodeWithData:data]];
     STAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
 }

@@ -9,7 +9,7 @@
 
 static NSString * const YGFormatPlainPrefix = @"YGG:pln:";
 static NSString * const YGFormatTextPrefix = @"YGG:txt:";
-static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
+static NSString * const YGFormatBinaryPrefix = @"YGG:bn2:";
 
 
 @implementation YGFormat
@@ -28,7 +28,8 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
     if ([format isEqualToString:YGFormatPlainPrefix]) return [self nodeWithPlainData:data];
     if ([format isEqualToString:YGFormatTextPrefix]) return [self nodeWithTextData:data];
     if ([format isEqualToString:YGFormatBinaryPrefix]) return [self nodeWithBinaryData:data];
-    return [self nodeWithPlainData:data];
+    NSLog(@"File format '%@' not supported", format);
+    return nil;
 }
 
 
@@ -87,18 +88,21 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-+ (void)collectLabelsInNode:(YGNode *)node labels:(NSMutableDictionary *)labels last:(NSString **)last
++ (NSUInteger)collectLabelsInNode:(YGNode *)node labels:(NSMutableDictionary *)labels last:(NSString **)last
 {
     if (node.count == 4) {
+        NSUInteger result = 1;
         for (id n in node) {
-            [self collectLabelsInNode:n labels:labels last:last];
+            result += [self collectLabelsInNode:n labels:labels last:last];
         }
+        return result;
     } else {
         NSString *label = node[0];
         if (label.length && ![label isEqualToString:*last]) {
             labels[label] = @([labels[label] unsignedIntegerValue] + 1);
             *last = label;
         }
+        return 1;
     }
 }
 
@@ -170,25 +174,35 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
 + (NSData *)binaryDataWithNode:(YGNode *)node
 {
     NSMutableData *data = [[NSMutableData alloc] init];
-    [data appendData:[YGFormatBinaryPrefix dataUsingEncoding:NSUTF8StringEncoding]];
+    // collect labels
     NSString *last = nil;
     NSMutableDictionary *countForLabel = @{}.mutableCopy;
-    [self collectLabelsInNode:node labels:countForLabel last:&last];
+    NSUInteger nodeCount = [self collectLabelsInNode:node labels:countForLabel last:&last];
     NSArray *labels = [countForLabel keysSortedByValueUsingSelector:@selector(compare:)];
-    [self appendValue:labels.count data:data];
+    // write header
+    [data appendData:[YGFormatBinaryPrefix dataUsingEncoding:NSUTF8StringEncoding]];
+    [data appendData:[self dataWithValue:labels.count]];
+    NSUInteger labelSizeIndex = data.length;
+    [data appendData:[self dataWithValue:0]];
+    [data appendData:[self dataWithValue:nodeCount]];
+    NSUInteger nodeSizeIndex = data.length;
+    [data appendData:[self dataWithValue:0]];
+    // write labels
     NSMutableDictionary *indexForLabel = @{}.mutableCopy;
     unsigned char zero = 0;
     NSUInteger i = 1;
-    NSMutableData *indexData = [[NSMutableData alloc] init];
+    NSUInteger labelStart = data.length;
     for (NSString *label in labels.reverseObjectEnumerator) {
         indexForLabel[label] = @(i++);
-        [indexData appendData:[label dataUsingEncoding:NSUTF8StringEncoding]];
-        [indexData appendBytes:&zero length:1];
+        [data appendData:[label dataUsingEncoding:NSUTF8StringEncoding]];
+        [data appendBytes:&zero length:1];
     }
-    [self appendValue:indexData.length data:data];
-    [data appendData:indexData];
+    [data replaceBytesInRange:NSMakeRange(labelSizeIndex, 4) withBytes:[self dataWithValue:data.length - labelStart].bytes];
+    // write nodes
     last = nil;
+    NSUInteger nodeStart = data.length;
     [self appendNode:node data:data labels:indexForLabel last:&last];
+    [data replaceBytesInRange:NSMakeRange(nodeSizeIndex, 4) withBytes:[self dataWithValue:data.length - nodeStart].bytes];
     return data;
 }
 
@@ -219,6 +233,8 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
     NSUInteger index = YGFormatBinaryPrefix.length;
     NSUInteger count = [self parseValueFromData:data index:&index];
     [self parseValueFromData:data index:&index];
+    [self parseValueFromData:data index:&index];
+    [self parseValueFromData:data index:&index];
     NSMutableArray *labels = @[].mutableCopy;
     for (NSUInteger i = 0; i < count; i++) {
         [labels addObject:[self parseStringFromData:data index:&index]];
@@ -243,6 +259,17 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
         code <<= 2;
     }
     return result;
+}
+
++ (NSData *)dataWithValue:(NSUInteger)value
+{
+    value += 0x10000000;
+    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:4];
+    [data appendBytes:(unsigned char *)&value + 3 length:1];
+    [data appendBytes:(unsigned char *)&value + 2 length:1];
+    [data appendBytes:(unsigned char *)&value + 1 length:1];
+    [data appendBytes:(unsigned char *)&value length:1];
+    return data;
 }
 
 + (void)appendValue:(NSUInteger)value data:(NSMutableData *)data
@@ -285,14 +312,13 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
         [data getBytes:(unsigned char *)&result + 1 range:NSMakeRange((*index)++, 1)];
         [data getBytes:(unsigned char *)&result range:NSMakeRange((*index)++, 1)];
         return result - 0x200000;
-    } else if (c >= 0x10) {
+    } else {
         [data getBytes:(unsigned char *)&result + 3 range:NSMakeRange((*index)++, 1)];
         [data getBytes:(unsigned char *)&result + 2 range:NSMakeRange((*index)++, 1)];
         [data getBytes:(unsigned char *)&result + 1 range:NSMakeRange((*index)++, 1)];
         [data getBytes:(unsigned char *)&result range:NSMakeRange((*index)++, 1)];
         return result - 0x10000000;
     }
-    return 0;
 }
 
 + (NSString *)parseStringFromData:(NSData *)data index:(NSUInteger *)index
@@ -305,6 +331,17 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
         }
     }
     return nil;
+}
+
++ (NSData *)sourceDataWithNode:(YGNode *)node
+{
+    NSData *data = [self binaryDataWithNode:node];
+    NSMutableString *string = @"const unsigned char ygg[] = {".mutableCopy;
+    for (const unsigned char *b = data.bytes, *end = b + data.length; b < end; b++) {
+        [string appendFormat:@"0x%02x,", *b];
+    }
+    [string appendString:@"};"];
+    return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 @end
