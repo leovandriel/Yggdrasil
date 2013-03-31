@@ -25,7 +25,7 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bn2:";
 + (NSMutableArray *)nodeWithData:(NSData *)data
 {
     NSString *format = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 8)] encoding:NSUTF8StringEncoding];
-    if ([format isEqualToString:YGFormatPlainPrefix]) return [self nodeWithPlainData:data];
+    if ([format isEqualToString:YGFormatPlainPrefix] || [format hasPrefix:@"["]) return [self nodeWithPlainData:data];
     if ([format isEqualToString:YGFormatTextPrefix]) return [self nodeWithTextData:data];
     if ([format isEqualToString:YGFormatBinaryPrefix]) return [self nodeWithBinaryData:data];
     NSLog(@"File format '%@' not supported", format);
@@ -97,7 +97,7 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bn2:";
         }
         return result;
     } else {
-        NSString *label = node[0];
+        NSString *label = node.count ? node[0] : nil;
         if (label.length && ![label isEqualToString:*last]) {
             labels[label] = @([labels[label] unsignedIntegerValue] + 1);
             *last = label;
@@ -117,7 +117,7 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bn2:";
         }
         [string appendString:@"]"];
     } else {
-        NSString *label = node[0];
+        NSString *label = node.count ? node[0] : nil;
         if (!label.length) {
             [string appendString:@""];
         } else if ([label isEqualToString:*last]) {
@@ -218,7 +218,7 @@ static NSString * const YGFormatBinaryPrefix = @"YGG:bn2:";
         [data replaceBytesInRange:NSMakeRange(index, 1) withBytes:&code];
         return 3;
     } else {
-        NSString *label = node[0];
+        NSString *label = node.count ? node[0] : nil;
         if (!label.length) return 0;
         if ([label isEqualToString:*last]) return 1;
         [self appendValue:[labels[label] unsignedIntegerValue] data:data];

@@ -6,7 +6,7 @@ Yggdrasil
 
 About
 -----
-Yggdrasil turns a simple 2D mapping into a quad tree by recursively sampling coordinates. It can be used for generating a fast lookup for country codes based on a slow lookups like polygon intersection or even web requests.
+Yggdrasil turns a simple 2D mapping into a quad tree by recursively sampling coordinates. It can be used for generating a fast lookup for geographical data based on a slow lookups like polygon intersection or even web requests.
 
 ![Screenshot countries of the world](Demo/screenshot.png)
 
@@ -22,39 +22,44 @@ The `NSPoint` parameter is contained in the rectangle returned by `- (NSRect)rec
 
 Drawing
 -------
-When selecting a labeler, the last fully scanned quadtree is displayed. After starting a scan, progress is indicated by frequent updates and the display of a white square cursor. Zoom in by clicking one of the four quadrants, zoom out by clicking on the side. The tree is only drawn up to screen resolution, so use zooming to appreciate the details. Resize the window to have the cursor update more frequently, small is fast.
+When selecting a labeler, the last fully scanned quadtree is displayed. After starting a scan, progress is indicated by frequent updates and the display of a white square cursor. Zoom in by clicking one of the four quadrants, zoom out by clicking on the side. The tree is only drawn up to screen resolution, so use zooming to appreciate the details. Resize the window to have the cursor update more frequently.
 
 
-Caching
--------
-All sampled labels are stored in cache file to allow fast reruns of the same labeler. This cache is stored in `~/Caches/Yggdrasil` with a `.cache` extension, which is JSON data. 
+Exporting
+---------
+A generated quadtree can be saved to a file. Yggdrasil supports tree formats: plain, text, binary. To demonstrate the layout of the formats, let's assume the tree pictured below. Element are ordered left to right, bottom to top.
 
-When the labeling completes, the quadtree is stored in the same folder with a `.ygg` extension. The format of this file is derived from the JSON format, and contains nested arrays with four elements. Each array represents a tree node and can contain both sub-arrays and labels. The tree leafs are string labels.
-
-Element are ordered left to right, bottom to top. For example:
-
-    +-------+-------+
+    +---+---+-------+
     | C | D |       |
     +---+---+       |
     | B |   |       |
-    +-------+-------+
+    +---+---+-------+
     |       |       |
     |       |   A   |
     |       |       |
     +-------+-------+
 
-is encoded as:
+Plain is a basic, inefficient, but easy to read format. Each node is encoded in the form `[,,,]`. In this particular case this results in:
 
     [,A,[B,,C,D],]
+
+The text format provides a more efficient storage, while retaining readability. It starts by listing the number of labels and the label strings. This is followed by the tree encoded in plain format, but with labels replace by their index:
+
+    4,8,C,B,D,A,[,4,[2,,1,3],]
+
+The binary format is the most efficient in terms of size and read time. It is similar to the text format, but uses a byte-aligned encoding, with one byte per node and 1 or 2 bytes per index.
+
+
+Caching
+-------
+All sampled labels are stored in a cache file to allow fast reruns of the same labeler. This cache is stored in `~/Caches/Yggdrasil` with a `.cache` extension. If you modifiy a labeler, its important to clear this cache. Fortunately there's a button for that.
     
 
 Demo
 ----
-Demo Ruby code is included to demonstrate the lookup process in a generated quadtree:
-
-    ruby lookup.rb 52 5
+To get an idea of how to use a generated quad tree, take a look at the demo lookups written in Objective-C, C and Ruby. Each demo is fully self-contained and demonstrates a different tree data format.
     
-The included countries geo data is of low accuracy. If you're looking for more details, then use the `countries-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
+The geo data included in these demos is of low accuracy. If you're looking for more details, then use the `countries-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
 
 
 Geodata

@@ -125,10 +125,10 @@
         [_run.scanner processNode:_run.node block:^(BOOL finished) {
             [_runButton setTitle:@"Start"];
             _exportButton.enabled = YES;
+            [self.class saveNode:_run.node name:_run.labeler.name];
             if (finished) {
                 _infoLabel.stringValue = @"finished";
                 _progressBar.doubleValue = 1;
-                [self.class saveNode:_run.node name:_run.labeler.name];
             } else if (_run) {
                 _infoLabel.stringValue = @"cancelled";
             }
