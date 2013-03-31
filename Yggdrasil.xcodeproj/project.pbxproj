@@ -23,6 +23,7 @@
 		B3B5A17516D0CB660038CFEF /* cities.json in Resources */ = {isa = PBXBuildFile; fileRef = B3B5A17416D0CB660038CFEF /* cities.json */; };
 		B3FC88ED170850F200E7AC61 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3FC88EC170850F200E7AC61 /* Foundation.framework */; };
 		B3FC88F8170850FF00E7AC61 /* lookup.m in Sources */ = {isa = PBXBuildFile; fileRef = B3FC88E6170850CB00E7AC61 /* lookup.m */; };
+		B3FC89071708521B00E7AC61 /* lookup.c in Sources */ = {isa = PBXBuildFile; fileRef = B3FC89061708521B00E7AC61 /* lookup.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,15 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		B3FC88E9170850F200E7AC61 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		B3FC88FB170851F600E7AC61 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -78,6 +88,8 @@
 		B3FC88E6170850CB00E7AC61 /* lookup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = lookup.m; path = Demo/lookup.m; sourceTree = SOURCE_ROOT; };
 		B3FC88EB170850F200E7AC61 /* YggdrasilObjC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = YggdrasilObjC; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3FC88EC170850F200E7AC61 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		B3FC88FD170851F600E7AC61 /* YggdrasilC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = YggdrasilC; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3FC89061708521B00E7AC61 /* lookup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lookup.c; path = Demo/lookup.c; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +118,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B3FC88FA170851F600E7AC61 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -127,6 +146,7 @@
 				B3335C0D16A552DC00AE03E4 /* Yggdrasil.app */,
 				B3335C2E16A552DD00AE03E4 /* YggdrasilTest.octest */,
 				B3FC88EB170850F200E7AC61 /* YggdrasilObjC */,
+				B3FC88FD170851F600E7AC61 /* YggdrasilC */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -197,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				B3FC88E6170850CB00E7AC61 /* lookup.m */,
+				B3FC89061708521B00E7AC61 /* lookup.c */,
 			);
 			name = Demo;
 			path = Test;
@@ -258,6 +279,23 @@
 			productReference = B3FC88EB170850F200E7AC61 /* YggdrasilObjC */;
 			productType = "com.apple.product-type.tool";
 		};
+		B3FC88FC170851F600E7AC61 /* YggdrasilC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B3FC8903170851F600E7AC61 /* Build configuration list for PBXNativeTarget "YggdrasilC" */;
+			buildPhases = (
+				B3FC88F9170851F600E7AC61 /* Sources */,
+				B3FC88FA170851F600E7AC61 /* Frameworks */,
+				B3FC88FB170851F600E7AC61 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YggdrasilC;
+			productName = YggdrasilC;
+			productReference = B3FC88FD170851F600E7AC61 /* YggdrasilC */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -281,6 +319,7 @@
 				B3335C0C16A552DC00AE03E4 /* YggdrasilMac */,
 				B3335C2D16A552DD00AE03E4 /* YggdrasilTest */,
 				B3FC88EA170850F200E7AC61 /* YggdrasilObjC */,
+				B3FC88FC170851F600E7AC61 /* YggdrasilC */,
 			);
 		};
 /* End PBXProject section */
@@ -349,6 +388,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3FC88F8170850FF00E7AC61 /* lookup.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B3FC88F9170851F600E7AC61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3FC89071708521B00E7AC61 /* lookup.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,6 +621,65 @@
 			};
 			name = Release;
 		};
+		B3FC8904170851F600E7AC61 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B3FC8905170851F600E7AC61 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -609,6 +715,14 @@
 			buildConfigurations = (
 				B3FC88F6170850F200E7AC61 /* Debug */,
 				B3FC88F7170850F200E7AC61 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B3FC8903170851F600E7AC61 /* Build configuration list for PBXNativeTarget "YggdrasilC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3FC8904170851F600E7AC61 /* Debug */,
+				B3FC8905170851F600E7AC61 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
