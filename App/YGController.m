@@ -45,6 +45,7 @@
     IBOutlet NSTextField *_maxLabel;
     IBOutlet NSTextField *_subLabel;
     IBOutlet NSComboBox *_labelerCombo;
+    IBOutlet NSPopUpButton *_exportButton;
     NSArray *_labelers;
     YGRun *_run;
 }
@@ -108,6 +109,7 @@
 - (IBAction)run:(id)sender {
     if (!_run.scanner.running) {
         [_runButton setTitle:@"Stop"];
+        _exportButton.enabled = NO;
         [_run.scanner cancel];
         
         _run = [[YGRun alloc] init];
@@ -127,6 +129,7 @@
         
         [_run.scanner processNode:_run.node block:^(BOOL finished) {
             [_runButton setTitle:@"Start"];
+            _exportButton.enabled = YES;
             if (finished) {
                 _infoLabel.stringValue = @"finished";
                 _progressBar.doubleValue = 1;
@@ -139,6 +142,7 @@
         }];
     } else {
         [_runButton setTitle:@"Start"];
+        _exportButton.enabled = YES;
         _infoLabel.stringValue = @"cancelled";
         [_run.scanner cancel];
     }
@@ -183,6 +187,26 @@
             [self select:nil];
         }
     }
+}
+   
+- (IBAction)export:(id)sender
+{
+    NSUInteger format = _exportButton.indexOfSelectedItem;
+    NSSavePanel *panel = [NSSavePanel savePanel];
+    panel.nameFieldStringValue = [NSString stringWithFormat:@"%@.ygg", _labelerCombo.stringValue];
+    [panel beginWithCompletionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton && panel.URL) {
+            NSData *data = nil;
+            switch (format) {
+                case 1: data = [YGFormat plainDataWithNode:_drawView.node]; break;
+                case 2: data = [YGFormat textDataWithNode:_drawView.node]; break;
+                case 3: data = [YGFormat binaryDataWithNode:_drawView.node]; break;
+                case 4: data = [YGFormat sourceDataWithNode:_drawView.node]; break;
+            }
+            [data writeToURL:panel.URL atomically:YES];
+        }
+        [_exportButton selectItemAtIndex:0];
+    }];
 }
 
 #pragma mark - Scanner callback
