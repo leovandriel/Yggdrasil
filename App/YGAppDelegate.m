@@ -19,8 +19,8 @@
     NSArray *labelers = @[
         [[YGCircleLabeler alloc] init],
         [[YGMandelbrotLabeler alloc] init],
-        [[YGGeoJsonLabeler alloc] initWithName:@"countries" labelPath:@"id"],
-        [[YGGeoJsonLabeler alloc] initWithName:@"cities" labelPath:@"id"],
+        [[YGGeoJsonLabeler alloc] initWithName:@"countries" labelPath:@"properties.name"],
+        [[YGGeoJsonLabeler alloc] initWithName:@"cities" labelPath:@"properties.name"],
     ];
     [controller setupWithLabelers:labelers min:4 max:8 sub:2];
 }
