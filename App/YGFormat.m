@@ -9,6 +9,7 @@
 
 static NSString * const YGFormatPlainPrefix = @"YGG:pln:";
 static NSString * const YGFormatTextPrefix = @"YGG:txt:";
+static NSString * const YGFormatBinaryPrefix = @"YGG:bin:";
 
 
 @implementation YGFormat
@@ -18,8 +19,7 @@ static NSString * const YGFormatTextPrefix = @"YGG:txt:";
 
 + (NSData *)dataWithNode:(NSMutableArray *)node
 {
-    // use default
-    return [self textDataWithNode:node];
+    return [self binaryDataWithNode:node];
 }
 
 + (NSMutableArray *)nodeWithData:(NSData *)data
@@ -27,7 +27,7 @@ static NSString * const YGFormatTextPrefix = @"YGG:txt:";
     NSString *format = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 8)] encoding:NSUTF8StringEncoding];
     if ([format isEqualToString:YGFormatPlainPrefix]) return [self nodeWithPlainData:data];
     if ([format isEqualToString:YGFormatTextPrefix]) return [self nodeWithTextData:data];
-    // assume old format
+    if ([format isEqualToString:YGFormatBinaryPrefix]) return [self nodeWithBinaryData:data];
     return [self nodeWithPlainData:data];
 }
 
@@ -71,7 +71,6 @@ static NSString * const YGFormatTextPrefix = @"YGG:txt:";
     NSMutableDictionary *countForLabel = @{}.mutableCopy;
     [self collectLabelsInNode:node labels:countForLabel last:&last];
     NSArray *labels = [countForLabel keysSortedByValueUsingSelector:@selector(compare:)];
-//    for (NSString *label in labels) NSLog(@"%@ -> %@", label, countForLabel[label]);
     [string appendFormat:@"%lu,", labels.count];
     NSUInteger indexLength = labels.count;
     for (NSString *label in labels) indexLength += label.length;
@@ -160,6 +159,149 @@ static NSString * const YGFormatTextPrefix = @"YGG:txt:";
                 *last = label;
                 return @[label].mutableCopy;
             }
+        }
+    }
+    return nil;
+}
+
+
+#pragma mark - Binary format
+
++ (NSData *)binaryDataWithNode:(YGNode *)node
+{
+    NSMutableData *data = [[NSMutableData alloc] init];
+    [data appendData:[YGFormatBinaryPrefix dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *last = nil;
+    NSMutableDictionary *countForLabel = @{}.mutableCopy;
+    [self collectLabelsInNode:node labels:countForLabel last:&last];
+    NSArray *labels = [countForLabel keysSortedByValueUsingSelector:@selector(compare:)];
+    [self appendValue:labels.count data:data];
+    NSMutableDictionary *indexForLabel = @{}.mutableCopy;
+    unsigned char zero = 0;
+    NSUInteger i = 1;
+    NSMutableData *indexData = [[NSMutableData alloc] init];
+    for (NSString *label in labels.reverseObjectEnumerator) {
+        indexForLabel[label] = @(i++);
+        [indexData appendData:[label dataUsingEncoding:NSUTF8StringEncoding]];
+        [indexData appendBytes:&zero length:1];
+    }
+    [self appendValue:indexData.length data:data];
+    [data appendData:indexData];
+    last = nil;
+    [self appendNode:node data:data labels:indexForLabel last:&last];
+    return data;
+}
+
++ (char)appendNode:(YGNode *)node data:(NSMutableData *)data labels:(NSDictionary *)labels last:(NSString **)last
+{
+    if (node.count == 4) {
+        unsigned char code = 0;
+        NSUInteger index = data.length;
+        [data appendBytes:&code length:1];
+        for (YGNode *n in node) {
+            code = (code << 2) + [self appendNode:n data:data labels:labels last:last];
+        }
+        [data replaceBytesInRange:NSMakeRange(index, 1) withBytes:&code];
+        return 3;
+    } else {
+        NSString *label = node[0];
+        if (!label.length) return 0;
+        if ([label isEqualToString:*last]) return 1;
+        [self appendValue:[labels[label] unsignedIntegerValue] data:data];
+        *last = label;
+        return 2;
+    }
+}
+
++ (YGNode *)nodeWithBinaryData:(NSData *)data
+{
+    if (data.length < 8 || ![[[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 8)] encoding:NSUTF8StringEncoding] isEqualToString:YGFormatBinaryPrefix]) return nil;
+    NSUInteger index = YGFormatBinaryPrefix.length;
+    NSUInteger count = [self parseValueFromData:data index:&index];
+    [self parseValueFromData:data index:&index];
+    NSMutableArray *labels = @[].mutableCopy;
+    for (NSUInteger i = 0; i < count; i++) {
+        [labels addObject:[self parseStringFromData:data index:&index]];
+    }
+    NSString *last = nil;
+    YGNode *result = [self nodeWithData:data index:&index labels:labels last:&last];
+    return result;
+}
+
++ (YGNode *)nodeWithData:(NSData *)data index:(NSUInteger *)index labels:(NSArray *)labels last:(NSString **)last
+{
+    unsigned char code = 0;
+    [data getBytes:&code range:NSMakeRange(*index, 1)]; ++*index;
+    YGNode *result = @[].mutableCopy;
+    for (NSUInteger i = 0; i < 4; i++) {
+        switch (code & 0xC0) {
+            case 0x00: [result addObject:@[@""].mutableCopy]; break;
+            case 0x80: *last = labels[[self parseValueFromData:data index:index] - 1];
+            case 0x40: [result addObject:@[*last].mutableCopy]; break;
+            case 0xC0: [result addObject:[self nodeWithData:data index:index labels:labels last:last]]; break;
+        }
+        code <<= 2;
+    }
+    return result;
+}
+
++ (void)appendValue:(NSUInteger)value data:(NSMutableData *)data
+{
+    if (value < 0x80) {
+        value += 0x80;
+        [data appendBytes:&value length:1];
+    } else if (value < 0x4000) {
+        value += 0x4000;
+        [data appendBytes:(unsigned char *)&value + 1 length:1];
+        [data appendBytes:(unsigned char *)&value length:1];
+    } else if (value < 0x200000) {
+        value += 0x200000;
+        [data appendBytes:(unsigned char *)&value + 2 length:1];
+        [data appendBytes:(unsigned char *)&value + 1 length:1];
+        [data appendBytes:(unsigned char *)&value length:1];
+    } else if (value < 0x10000000) {
+        value += 0x10000000;
+        [data appendBytes:(unsigned char *)&value + 3 length:1];
+        [data appendBytes:(unsigned char *)&value + 2 length:1];
+        [data appendBytes:(unsigned char *)&value + 1 length:1];
+        [data appendBytes:(unsigned char *)&value length:1];
+    }
+}
+
++ (NSUInteger)parseValueFromData:(NSData *)data index:(NSUInteger *)index
+{
+    unsigned char c = 0;
+    [data getBytes:&c range:NSMakeRange(*index, 1)];
+    NSUInteger result = 0;
+    if (c >= 0x80) {
+        [data getBytes:&result range:NSMakeRange((*index)++, 1)];
+        return result - 0x80;
+    } else if (c >= 0x40) {
+        [data getBytes:(unsigned char *)&result + 1 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result range:NSMakeRange((*index)++, 1)];
+        return result - 0x4000;
+    } else if (c >= 0x20) {
+        [data getBytes:(unsigned char *)&result + 2 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result + 1 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result range:NSMakeRange((*index)++, 1)];
+        return result - 0x200000;
+    } else if (c >= 0x10) {
+        [data getBytes:(unsigned char *)&result + 3 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result + 2 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result + 1 range:NSMakeRange((*index)++, 1)];
+        [data getBytes:(unsigned char *)&result range:NSMakeRange((*index)++, 1)];
+        return result - 0x10000000;
+    }
+    return 0;
+}
+
++ (NSString *)parseStringFromData:(NSData *)data index:(NSUInteger *)index
+{
+    const char *bytes = (const char *)data.bytes + *index;
+    for (NSUInteger i = 0; i + *index < data.length; i++, bytes++) {
+        if (*bytes == '\0') {
+            *index += i + 1;
+            return [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(*index - i - 1, i)] encoding:NSUTF8StringEncoding];
         }
     }
     return nil;

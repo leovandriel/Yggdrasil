@@ -15,5 +15,9 @@
 
 + (NSData *)plainDataWithNode:(YGNode *)node;
 + (NSData *)textDataWithNode:(YGNode *)node;
++ (NSData *)binaryDataWithNode:(YGNode *)node;
+
++ (void)appendValue:(NSUInteger)value data:(NSMutableData *)data;
++ (NSUInteger)parseValueFromData:(NSData *)data index:(NSUInteger *)index;
 
 @end
