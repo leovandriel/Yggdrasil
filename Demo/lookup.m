@@ -102,12 +102,28 @@ int main(int argc, const char * argv[])
         if (argc == 3) {
             NSPoint point = NSMakePoint(atof(argv[2]), atof(argv[1]));
             NSString *label = [lookup labelAt:point];
-            NSLog(@"Country at %.1f %c %.1f %c is %@", fabs(point.y), point.y >= 0 ? 'N' : 'S', fabs(point.x), point.x >= 0 ? 'E' : 'W', label.length ? label : @"none");
+            printf("country at %.1f %c %.1f %c is %s\n", fabs(point.y), point.y >= 0 ? 'N' : 'S', fabs(point.x), point.x >= 0 ? 'E' : 'W', label.length ? label.UTF8String : "none");
+        } else if (argc == 2 && !strcmp(argv[1], "performance")) {
+            printf("timing performance of random lookups (takes about 5 seconds)\n");
+            clock_t start = clock();
+            double duration = 0, correction = 0;
+            int loops = 0;
+            for (; duration < 5; loops++) {
+                for (int i = 1000000; i; i--) {
+                    [lookup labelAt:NSMakePoint((double)360 * rand() / RAND_MAX - 180, (double)180 * rand() / RAND_MAX - 90)];
+                }
+                duration = (double)(clock() - start) / CLOCKS_PER_SEC;
+            }
+            start = clock();
+            for (int i = loops; i; i--) {
+                correction = (double)(clock() - start) / CLOCKS_PER_SEC;
+            }
+            printf("%i million lookups were performed, %.3f nano seconds per lookup\n", loops, (duration - correction) / loops * 1000);
         } else {
-            NSLog(@"usage: lookup latitude longitude");
-            NSLog(@"example output:");
-            NSLog(@"Country at 52N 5E is %@", [lookup labelAt:NSMakePoint(5, 52)]);
-            NSLog(@"Country at 48N 122W is %@", [lookup labelAt:NSMakePoint(-122, 48)]);
+            printf("usage: lookup latitude longitude\n");
+            printf("example output:\n");
+            printf("country at 52N 5E is %s\n", [lookup labelAt:NSMakePoint(5, 52)].UTF8String);
+            printf("country at 48N 122W is %s\n", [lookup labelAt:NSMakePoint(-122, 48)].UTF8String);
         }
     }
     return 0;

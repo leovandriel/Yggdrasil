@@ -21,13 +21,13 @@ def read_world
   JSON.parse json
 end
 
-def label_at point, cell, rect = {x: -180, y: -180, width: 360, height: 360}
+def label_at px, py, cell, rx=-180, ry=-180, rw=360, rh=360
   if cell.size == 4
-    rect[:width] /= 2.0 and rect[:height] /= 2.0
+    rw /= 2.0 and rh /= 2.0
     index = 0
-    index += 1 and rect[:x] += rect[:width] if point[:lng] >= rect[:x] + rect[:width]
-    index += 2 and rect[:y] += rect[:height] if point[:lat] >= rect[:y] + rect[:height]
-    return label_at point, cell[index], rect
+    index += 1 and rx += rw if px >= rx + rw
+    index += 2 and ry += rh if py >= ry + rh
+    return label_at px, py, cell[index], rx, ry, rw, rh
   end
   cell[0].empty? ? "none" : cell[0]
 end
@@ -38,12 +38,30 @@ if ARGV.size == 2
   lat = ARGV[0].to_f
   lng = ARGV[1].to_f
   coord = "#{lat.abs} #{lat >= 0 ? 'N' : 'S'} #{lng.abs} #{lng >= 0 ? 'E' : 'W'}"
-  puts "Country at #{coord} is " + label_at({lat: lat, lng: lng}, cell)
+  puts "Country at #{coord} is " + label_at(lng, lat, cell)
+elsif ARGV.size == 1 && ARGV[0] == "performance"
+  puts "Timing performance of random lookups (takes about 5 seconds)"
+  start = Time.now
+  duration = 0
+  correction = 0
+  loops = 0
+  while duration < 5
+    100000.times do
+      label_at 360 * rand() - 180, 180 * rand() - 90, cell
+    end
+    duration = Time.now - start
+    loops += 1
+  end
+  start = Time.now
+  loops.times do
+    correction = Time.now - start
+  end
+  puts "#{loops * 100} thousand lookups were performed, #{((duration - correction) / loops * 10000).round} nano seconds per lookup"
 else
   puts "usage: lookup.rb latitude longitude"
   puts "example output:"
-  puts "Country at 52N 5E is " + label_at({lat: 52, lng: 5}, cell)
-  puts "Country at 8N 81W is " + label_at({lat: 8, lng: -81}, cell)
+  puts "Country at 52N 5E is " + label_at(5, 52, cell)
+  puts "Country at 8N 81W is " + label_at(-81, 8, cell)
 end
 
 __END__

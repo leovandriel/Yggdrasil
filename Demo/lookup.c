@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct YGNode {
     char type;
@@ -109,12 +110,28 @@ int main(int argc, const char * argv[])
     if (argc == 3) {
         double x = atof(argv[2]), y = atof(argv[1]);
         const char *label = YGLabelInTree(&tree, x, y);
-        printf("Country at %.1f %c %.1f %c is %s\n", y>=0?y:-y, y>=0?'N':'S', x>=0?x:-x, x>=0?'E':'W', strlen(label) ? label : "none");
+        printf("country at %.1f %c %.1f %c is %s\n", y>=0?y:-y, y>=0?'N':'S', x>=0?x:-x, x>=0?'E':'W', strlen(label) ? label : "none");
+    } else if (argc == 2 && !strcmp(argv[1], "performance")) {
+        printf("timing performance of random lookups (takes about 5 seconds)\n");
+        clock_t start = clock();
+        double duration = 0, correction = 0;
+        int loops = 0;
+        for (; duration < 5; loops++) {
+            for (int i = 1000000; i; i--) {
+                YGLabelInTree(&tree, (double)360 * rand() / RAND_MAX - 180, (double)180 * rand() / RAND_MAX - 90);
+            }
+            duration = (double)(clock() - start) / CLOCKS_PER_SEC;
+        }
+        start = clock();
+        for (int i = loops; i; i--) {
+            correction = (double)(clock() - start) / CLOCKS_PER_SEC;
+        }
+        printf("%i million lookups were performed, %.3f nano seconds per lookup\n", loops, (duration - correction) / loops * 1000);
     } else {
         printf("usage: lookup latitude longitude\n");
         printf("example output:\n");
-        printf("Country at 52N 5E is %s\n", YGLabelInTree(&tree, 5, 52));
-        printf("Country at 48N 122W is %s\n", YGLabelInTree(&tree, -122, 48));
+        printf("country at 52N 5E is %s\n", YGLabelInTree(&tree, 5, 52));
+        printf("country at 48N 122W is %s\n", YGLabelInTree(&tree, -122, 48));
     }
     YGFreeTree(&tree);
     return 0;
