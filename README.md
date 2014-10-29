@@ -1,5 +1,8 @@
+<img src="icon.png" alt="Yggdrasil Icon" width="72"/>
+
+
 Yggdrasil
-===========
+=========
 
 *Objective-C quadtree implementation with OS X visualization app.*
 
