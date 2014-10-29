@@ -52,7 +52,7 @@
 - (void)setupWithLabelers:(NSArray *)labelers depth:(NSUInteger)depth
 {
     _labelers = labelers;
-    _depthStepper.intValue = depth;
+    _depthStepper.intValue = (int)depth;
     [_labelerCombo removeAllItems];
     for (id<YGLabeler> labeler in labelers) {
         [_labelerCombo addItemWithObjectValue:labeler.name];

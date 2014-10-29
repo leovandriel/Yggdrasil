@@ -5,13 +5,13 @@
 //  Copyright (c) 2013 leo. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "YGScanner.h"
 #import "YGLabelers.h"
 #import "YGFormat.h"
 
 
-@interface YggdrasilTest : SenTestCase
+@interface YggdrasilTest : XCTestCase
 @end
 @implementation YggdrasilTest
 
@@ -36,11 +36,11 @@
     YGNode *node = [[YGNode alloc] init];
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
-        STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"N", @"");
+        XCTAssertTrue(finished, @"");
+        XCTAssertEqualObjects([self flat:node], @"N", @"");
         done = YES;
     }];
-    STAssertTrue(done, @"");
+    XCTAssertTrue(done, @"");
 }
 
 - (void)testOneDepth
@@ -54,11 +54,11 @@
     YGNode *node = [[YGNode alloc] init];
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
-        STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[N,0,N,0]", @"");
+        XCTAssertTrue(finished, @"");
+        XCTAssertEqualObjects([self flat:node], @"[N,0,N,0]", @"");
         done = YES;
     }];
-    STAssertTrue(done, @"");
+    XCTAssertTrue(done, @"");
 }
 
 - (void)testTwoDepth
@@ -72,11 +72,11 @@
     YGNode *node = [[YGNode alloc] init];
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
-        STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
+        XCTAssertTrue(finished, @"");
+        XCTAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
         done = YES;
     }];
-    STAssertTrue(done, @"");
+    XCTAssertTrue(done, @"");
 }
 
 - (void)testTwoDepthMin
@@ -90,11 +90,11 @@
     YGNode *node = [[YGNode alloc] init];
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
-        STAssertTrue(finished, @"");
-        STAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
+        XCTAssertTrue(finished, @"");
+        XCTAssertEqualObjects([self flat:node], @"[N,[0,P,0,P],N,[0,P,0,P]]", @"");
         done = YES;
     }];
-    STAssertTrue(done, @"");
+    XCTAssertTrue(done, @"");
 }
 
 - (void)testCircle
@@ -108,20 +108,20 @@
     YGNode *node = [[YGNode alloc] init];
     __block BOOL done = NO;
     [core processNode:node block:^(BOOL finished) {
-        STAssertTrue(finished, @"");
-        STAssertEquals((int)[self flat:node].length, 105, @"");
+        XCTAssertTrue(finished, @"");
+        XCTAssertEqual((int)[self flat:node].length, 105, @"");
         done = YES;
     }];
-    STAssertTrue(done, @"");
+    XCTAssertTrue(done, @"");
 }
 
 - (void)testTextFormat
 {
     NSData *data = [YGFormat textDataWithNode:[self node:@"[N,[,P,,P],N,[,P,,P]]"]];
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    STAssertEqualObjects(text, @"YGG:txt:2,4,P,N,[2,[,1,,0],2,[,1,,0]]", @"");
+    XCTAssertEqualObjects(text, @"YGG:txt:2,4,P,N,[2,[,1,,0],2,[,1,,0]]", @"");
     NSString *plain = [self flat:[YGFormat nodeWithData:data]];
-    STAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
+    XCTAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
 }
 
 - (void)testBinaryValues
@@ -136,26 +136,26 @@
     [YGFormat appendValue:0x80 data:data];
     [YGFormat appendValue:0x3FFF data:data];
     [YGFormat appendValue:0x4000 data:data];
-    STAssertEqualObjects(data.description, @"<80818283 84ff4080 7fff2040 00>", @"");
+    XCTAssertEqualObjects(data.description, @"<80818283 84ff4080 7fff2040 00>", @"");
     NSUInteger index = 0;
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 0Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 1Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 2Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 3Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 4Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 0x7FLu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 0x80Lu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 0x3FFFLu, @"");
-    STAssertEquals([YGFormat parseValueFromData:data index:&index], 0x4000Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 0Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 1Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 2Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 3Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 4Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 0x7FLu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 0x80Lu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 0x3FFFLu, @"");
+    XCTAssertEqual([YGFormat parseValueFromData:data index:&index], 0x4000Lu, @"");
 }
 
 - (void)testBinaryFormat
 {
     NSData *data = [YGFormat binaryDataWithNode:[self node:@"[N,[,P,,P],N,[,P,,P]]"]];
     NSLog(@"%.*s", (int)data.length, data.bytes);
-    STAssertEqualObjects(data.description, @"<5947473a 626e323a 10000002 10000004 1000000d 10000007 50004e00 bb822181 822181>", @"");
+    XCTAssertEqualObjects(data.description, @"<5947473a 626e323a 10000002 10000004 1000000d 10000007 50004e00 bb822181 822181>", @"");
     NSString *plain = [self flat:[YGFormat nodeWithData:data]];
-    STAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
+    XCTAssertEqualObjects(plain, @"[N,[,P,,P],N,[,P,,P]]", @"");
 }
 
 @end

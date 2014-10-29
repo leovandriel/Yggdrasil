@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		B3335C1216A552DC00AE03E4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3335C1116A552DC00AE03E4 /* Cocoa.framework */; };
-		B3335C3016A552DD00AE03E4 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3335C2F16A552DD00AE03E4 /* SenTestingKit.framework */; };
 		B3335C3116A552DD00AE03E4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3335C1116A552DC00AE03E4 /* Cocoa.framework */; };
 		B3335C4A16A5534A00AE03E4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B3335C4416A5534A00AE03E4 /* main.m */; };
 		B3335C4B16A5534A00AE03E4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B3335C4516A5534A00AE03E4 /* MainMenu.xib */; };
@@ -64,8 +63,7 @@
 		B3335C1416A552DC00AE03E4 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		B3335C1516A552DC00AE03E4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		B3335C1616A552DC00AE03E4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		B3335C2E16A552DD00AE03E4 /* YggdrasilTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YggdrasilTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3335C2F16A552DD00AE03E4 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		B3335C2E16A552DD00AE03E4 /* YggdrasilTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YggdrasilTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3335C4416A5534A00AE03E4 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B3335C4516A5534A00AE03E4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		B3335C4616A5534A00AE03E4 /* YGAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YGAppDelegate.h; sourceTree = "<group>"; };
@@ -105,7 +103,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3335C3016A552DD00AE03E4 /* SenTestingKit.framework in Frameworks */,
 				B3335C3116A552DD00AE03E4 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -144,7 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				B3335C0D16A552DC00AE03E4 /* Yggdrasil.app */,
-				B3335C2E16A552DD00AE03E4 /* YggdrasilTest.octest */,
+				B3335C2E16A552DD00AE03E4 /* YggdrasilTest.xctest */,
 				B3FC88EB170850F200E7AC61 /* YggdrasilObjC */,
 				B3FC88FD170851F600E7AC61 /* YggdrasilC */,
 			);
@@ -155,7 +152,6 @@
 			isa = PBXGroup;
 			children = (
 				B3335C1116A552DC00AE03E4 /* Cocoa.framework */,
-				B3335C2F16A552DD00AE03E4 /* SenTestingKit.framework */,
 				B3FC88EC170850F200E7AC61 /* Foundation.framework */,
 				B3335C1316A552DC00AE03E4 /* Other Frameworks */,
 			);
@@ -259,8 +255,8 @@
 			);
 			name = YggdrasilTest;
 			productName = YggdrasilTests;
-			productReference = B3335C2E16A552DD00AE03E4 /* YggdrasilTest.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = B3335C2E16A552DD00AE03E4 /* YggdrasilTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		B3FC88EA170850F200E7AC61 /* YggdrasilObjC */ = {
 			isa = PBXNativeTarget;
@@ -302,7 +298,8 @@
 		B3335C0216A5527300AE03E4 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastTestingUpgradeCheck = 0610;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = B3335C0516A5527300AE03E4 /* Build configuration list for PBXProject "Yggdrasil" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -413,6 +410,7 @@
 		B3335C0716A5527300AE03E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
@@ -426,7 +424,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -462,7 +459,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -491,7 +487,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Yggdrasil.app/Contents/MacOS/Yggdrasil";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -500,7 +495,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -522,7 +520,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -530,7 +527,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Yggdrasil.app/Contents/MacOS/Yggdrasil";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -540,7 +536,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -554,7 +553,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
@@ -562,7 +560,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -597,7 +594,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -625,7 +621,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -658,7 +653,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -717,6 +711,7 @@
 				B3FC88F7170850F200E7AC61 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B3FC8903170851F600E7AC61 /* Build configuration list for PBXNativeTarget "YggdrasilC" */ = {
 			isa = XCConfigurationList;
@@ -725,6 +720,7 @@
 				B3FC8905170851F600E7AC61 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
