@@ -43,4 +43,5 @@ typedef NSMutableArray YGNode;
 - (NSString *)name;
 - (NSRect)rect;
 - (void)labelAtPoint:(NSPoint)point block:(void(^)(NSString *))block;
+- (NSString *)labelAtPoint:(NSPoint)point;
 @end

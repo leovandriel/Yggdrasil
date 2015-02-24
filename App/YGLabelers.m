@@ -10,19 +10,32 @@
 
 @implementation YGBlockLabeler
 
-- (id)initWithRect:(NSRect)rect block:(NSString *(^)(NSPoint))block
+- (id)initWithName:(NSString *)name rect:(NSRect)rect async:(BOOL)async block:(NSString *(^)(NSPoint))block
 {
     self = [super init];
     if (self) {
         _block = [block copy];
+        _name = name;
         _rect = rect;
+        _async = async;
     }
     return self;
 }
 
+- (NSString *)labelAtPoint:(NSPoint)point
+{
+    return _block ? _block(point) : nil;
+}
+
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
 {
-    if (block) block(_block ? _block(point) : nil);
+    if (_async) {
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            if (block) block([self labelAtPoint:point]);
+        });
+    } else {
+       if (block) block([self labelAtPoint:point]);
+    }
 }
 
 @end
@@ -30,23 +43,11 @@
 
 @implementation YGCircleLabeler
 
-- (void)labelAtPoint:(NSPoint)p block:(void (^)(NSString *))block
+- (instancetype)init
 {
-//    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, .01 * NSEC_PER_SEC);
-//    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-    dispatch_async(dispatch_get_main_queue(), ^(void){
-        if (block) block(p.x * p.x + p.y * p.y < 1 ? @"0" : @"");
-    });
-}
-
-- (NSString *)name
-{
-    return @"circle";
-}
-
-- (NSRect)rect
-{
-    return NSMakeRect(-1.5, -1.5, 3, 3);
+    return [self initWithName:@"circle" rect:NSMakeRect(-1.5, -1.5, 3, 3) async:YES block:^NSString *(NSPoint point) {
+        return point.x * point.x + point.y * point.y < 1 ? @"0" : @"";
+    }];
 }
 
 @end
@@ -54,23 +55,26 @@
 
 @implementation YGMandelbrotLabeler
 
+- (NSString *)labelAtPoint:(NSPoint)point
+{
+    NSPoint p = point;
+    for (NSUInteger i = 0;; i++) {
+        if (p.x * p.x + p.y * p.y > 4) {
+            return [NSString stringWithFormat:@"%c%c", 'a' + ((char)i & 0x0F), 'a' + ((char)(i >> 4) & 0x0F)];
+        }
+        if (i > 255) {
+            return @"";
+        }
+        float t = p.x * p.x - p.y * p.y + point.x;
+        p.y = 2 * p.x * p.y + point.y;
+        p.x = t;
+    }
+}
+
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
 {
     dispatch_async(dispatch_get_main_queue(), ^(void){
-        NSPoint p = point;
-        for (NSUInteger i = 0;; i++) {
-            if (p.x * p.x + p.y * p.y > 4) {
-                if (block) block([NSString stringWithFormat:@"%c%c", 'a' + ((char)i & 0x0F), 'a' + ((char)(i >> 4) & 0x0F)]);
-                break;
-            }
-            if (i > 255) {
-                if (block) block(@"");
-                break;
-            }
-            float t = p.x * p.x - p.y * p.y + point.x;
-            p.y = 2 * p.x * p.y + point.y;
-            p.x = t;
-        }
+        if (block) block([self labelAtPoint:point]);
     });
 }
 
@@ -294,12 +298,16 @@
     return result;
 }
 
+- (NSString *)labelAtPoint:(NSPoint)point
+{
+    float min = FLT_MAX;
+    return [self labelAtPoint:point tree:_tree rect:self.rect min:&min];
+}
+
 - (void)labelAtPoint:(NSPoint)point block:(void (^)(NSString *))block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        float min = FLT_MAX;
-        NSString *label = [self labelAtPoint:point tree:_tree rect:self.rect min:&min];
-        if (block) block(label);
+        if (block) block([self labelAtPoint:point]);
     });
 }
 

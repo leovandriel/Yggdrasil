@@ -13,13 +13,14 @@
 @property (nonatomic, copy) NSString *(^block)(NSPoint);
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, assign) NSRect rect;
+@property (nonatomic, assign) BOOL async;
 
-- (id)initWithRect:(NSRect)rect block:(NSString *(^)(NSPoint))block;
+- (id)initWithName:(NSString *)name rect:(NSRect)rect async:(BOOL)async block:(NSString *(^)(NSPoint))block;
 
 @end
 
 
-@interface YGCircleLabeler : NSObject <YGLabeler>
+@interface YGCircleLabeler : YGBlockLabeler
 @end
 
 

@@ -30,7 +30,7 @@
     YGScanner *core = [[YGScanner alloc] init];
     core.minDepth = 0;
     core.maxDepth = 0;
-    core.labeler = [[YGBlockLabeler alloc] initWithRect:NSMakeRect(-1, -1, 2, 2) block:^NSString *(NSPoint p) {
+    core.labeler = [[YGBlockLabeler alloc] initWithName:@"" rect:NSMakeRect(-1, -1, 2, 2) async:NO block:^NSString *(NSPoint p) {
         return p.x > 0 ? @"P" : (p.x < 0 ? @"N" : @"0");
     }];
     YGNode *node = [[YGNode alloc] init];
@@ -48,7 +48,7 @@
     YGScanner *core = [[YGScanner alloc] init];
     core.minDepth = 0;
     core.maxDepth = 1;
-    core.labeler = [[YGBlockLabeler alloc] initWithRect:NSMakeRect(-1, -1, 2, 2) block:^NSString *(NSPoint p) {
+    core.labeler = [[YGBlockLabeler alloc] initWithName:@"" rect:NSMakeRect(-1, -1, 2, 2) async:NO block:^NSString *(NSPoint p) {
         return p.x > 0 ? @"P" : (p.x < 0 ? @"N" : @"0");
     }];
     YGNode *node = [[YGNode alloc] init];
@@ -66,7 +66,7 @@
     YGScanner *core = [[YGScanner alloc] init];
     core.minDepth = 0;
     core.maxDepth = 2;
-    core.labeler = [[YGBlockLabeler alloc] initWithRect:NSMakeRect(-1, -1, 2, 2) block:^NSString *(NSPoint p) {
+    core.labeler = [[YGBlockLabeler alloc] initWithName:@"" rect:NSMakeRect(-1, -1, 2, 2) async:NO block:^NSString *(NSPoint p) {
         return p.x > 0 ? @"P" : (p.x < 0 ? @"N" : @"0");
     }];
     YGNode *node = [[YGNode alloc] init];
@@ -84,7 +84,7 @@
     YGScanner *core = [[YGScanner alloc] init];
     core.minDepth = 1;
     core.maxDepth = 2;
-    core.labeler = [[YGBlockLabeler alloc] initWithRect:NSMakeRect(-1, -1, 2, 2) block:^NSString *(NSPoint p) {
+    core.labeler = [[YGBlockLabeler alloc] initWithName:@"" rect:NSMakeRect(-1, -1, 2, 2) async:NO block:^NSString *(NSPoint p) {
         return p.x > 0 ? @"P" : (p.x < 0 ? @"N" : @"0");
     }];
     YGNode *node = [[YGNode alloc] init];
@@ -102,7 +102,7 @@
     YGScanner *core = [[YGScanner alloc] init];
     core.minDepth = 3;
     core.maxDepth = 3;
-    core.labeler = [[YGBlockLabeler alloc] initWithRect:NSMakeRect(-1, -1, 2, 2) block:^NSString *(NSPoint p) {
+    core.labeler = [[YGBlockLabeler alloc] initWithName:@"" rect:NSMakeRect(-1, -1, 2, 2) async:NO block:^NSString *(NSPoint p) {
         return p.x * p.x + p.y * p.y < 1 ? @"0" : @" ";
     }];
     YGNode *node = [[YGNode alloc] init];
