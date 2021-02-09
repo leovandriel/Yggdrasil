@@ -56,12 +56,12 @@ The binary format is the most efficient in terms of size and read time. It is si
 Caching
 -------
 All sampled labels are stored in a cache file to allow fast reruns of the same labeler. This cache is stored in `~/Caches/Yggdrasil` with a `.cache` extension. If you modifiy a labeler, its important to clear this cache. Fortunately there's a button for that.
-    
+
 
 Demo
 ----
 To get an idea of how to use a generated quad tree, take a look at the demo lookups written in Objective-C, C and Ruby. Each demo is fully self-contained and demonstrates a different tree data format.
-    
+
 The geo data included in these demos is of low accuracy. If you're looking for more details, then use the `countries-12.ygg` file located in the `Demo` folder. This tree was generated using a 11 MB GeoJSON file. The tree has a maximum depth of 12, minimum 10 and subsample 2. It took about 4 hours of scanning on a 2 GHz Core i7 and resulted in a 130 MB cache file. The result is 630 KB, or 100 KB gzipped, with an accuracy of 10 km around the equator (40,000 / 2^12).
 
 
@@ -90,4 +90,4 @@ Yggdrasil is licensed under the terms of the BSD 2-Clause License, see the inclu
 
 Authors
 -------
-- [Leonard van Driel](http://www.leonardvandriel.nl/)
+- [Leo Vandriel](http://www.leovandriel.com/)

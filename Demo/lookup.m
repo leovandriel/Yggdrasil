@@ -6,7 +6,7 @@
 //  lookup accuracy under 40 km.
 //
 //  License: BSD
-//  Author:  Leonard van Driel, 2013
+//  Author:  Leo Vandriel, 2013
 
 #import <Foundation/Foundation.h>
 

@@ -1,7 +1,7 @@
 # Convert country codes from FIPS 10-4 to ISO 3166-1.
 #
 # License: BSD
-# Author:  Leonard van Driel, 2013
+# Author:  Leo Vandriel, 2013
 
 require 'json'
 require 'set'

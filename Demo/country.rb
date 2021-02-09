@@ -7,8 +7,8 @@
 #
 # Usage: ruby country.rb <latitude> <longitude>
 # License: BSD
-# Author:  Leonard van Driel, 2013
-# See: https://github.com/leonardvandriel/Yggdrasil
+# Author:  Leo Vandriel, 2013
+# See: https://github.com/leovandriel/Yggdrasil
 
 # rubocop:disable Metrics/LineLength, Metrics/MethodLength, Metrics/AbcSize
 
